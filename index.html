@@ -1434,35 +1434,26 @@ const Storage = {
     return SecureStorage.getItem('transactions', []);
   },
 
-                async saveTransaction(tx) {
-          const supabaseTx = {
-            transaction_id: tx.transactionId,
+               async getTransactions() {
+    // Intentar desde Supabase primero
+    const { data } = await SupabaseTransactions.getAll();
+    if (data && data.length > 0) {
+        return data.map(tx => ({
             amount: tx.amount,
-            amount_usd: tx.amount,
-            final_amount_ves: tx.finalAmountVES || Calculations.toVES(tx.amount),
-            payment_method: tx.token || 'CASH',
-            token: tx.token || 'USD',
-            tx_hash: tx.txHash,
-            status: tx.status || 'confirmed',
-            mora_applied: tx.moraApplied || false,
-            mora_days: tx.moraDays || 0,
-            mora_amount_ves: tx.moraAmountVES || 0
-          };
-
-          const result = await SupabaseTransactions.create(supabaseTx);
-          
-          if (result.success) {
-            console.log('✅ Transacción guardada en Supabase');
-            let txs = SecureStorage.getItem('transactions', []);
-            txs.unshift(tx);
-            if (txs.length > 100) txs = txs.slice(0, 100);
-            SecureStorage.setItem('transactions', txs);
-            UI.updateStats();
-          } else {
-            console.error('❌ Error:', result.error);
-            UI.showToast('Error guardando venta');
-          }
-        },
+            finalAmountVES: tx.final_amount_ves,
+            txHash: tx.tx_hash,
+            timestamp: new Date(tx.created_at).getTime(),
+            status: tx.status,
+            token: tx.payment_method || 'CASH',
+            transactionId: tx.transaction_id,
+            moraDays: tx.mora_days || 0,
+            moraAmountVES: tx.mora_amount_ves || 0,
+            moraApplied: tx.mora_applied || false
+        }));
+    }
+    // Fallback a LocalStorage
+    return SecureStorage.getItem('transactions', []);
+},
 
 
         deleteTransaction(txId) {
