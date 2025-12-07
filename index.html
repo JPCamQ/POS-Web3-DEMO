@@ -7,10 +7,10 @@
     <meta name="theme-color" content="#0a0e17">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title> Web3 POS - USD/VES</title>
+    <title>Web3 POS - USD/VES</title>
 
     <meta name="generator" content="Web3 POS v5.2 - Config Fix - Diciembre 2025">
-    <meta property="og:title" content=" Web3 POS v5.2 - Recibe USDT/USDC al instante">
+    <meta property="og:title" content="Web3 POS v5.2 - Recibe USDT/USDC al instante">
     <meta property="og:description" content="La forma más rápida y sencilla de aceptar criptomonedas estables en tu negocio.">
 
     <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Punto%20de%20Venta%20Web3%22%2C%22short_name%22%3A%22POS%20Web3%22%2C%22description%22%3A%22Sistema%20de%20punto%20de%20venta%20con%20criptomonedas%20y%20pago%20m%C3%B3vil%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22background_color%22%3A%22%230a0e17%22%2C%22theme_color%22%3A%22%230a0e17%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Ctext%2520y%253D%2527.9em%2527%2520font-size%253D%252790%2527%253E%25F0%259F%2592%25B3%253C%252Ftext%25253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
@@ -1260,9 +1260,140 @@
 
 
     <script>
-// ============================================================================
+// ========================================
+// SUPABASE API - Módulos de sincronización
+// ========================================
+
+const SupabaseTransactions = {
+    async create(tx) {
+        try {
+            const { data, error } = await SupabaseAuth.client
+                .from('transactions')
+                .insert([tx])
+                .select();
+            
+            if (error) throw error;
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('❌ Error en Supabase:', error);
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getAll() {
+        try {
+            const { data, error } = await SupabaseAuth.client
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('❌ Error obteniendo transacciones:', error);
+            return [];
+        }
+    }
+};
+
+const SupabaseCredits = {
+    async create(credit) {
+        try {
+            const { data, error } = await SupabaseAuth.client
+                .from('credits')
+                .insert([{
+                    credit_id: credit.creditId,
+                    client_name: credit.clientName,
+                    client_phone: credit.clientPhone,
+                    total_amount: credit.totalAmount,
+                    currency: credit.currency,
+                    number_of_installments: credit.numberOfInstallments,
+                    installment_amount: credit.installmentAmount,
+                    frequency: credit.frequency,
+                    paid_installments: credit.paidInstallments,
+                    pending_amount: credit.pendingAmount,
+                    created_date: credit.createdDate,
+                    first_due_date: credit.firstDueDate,
+                    next_due_date: credit.nextDueDate,
+                    status: credit.status,
+                    delivery_status: credit.deliveryStatus,
+                    products: JSON.stringify(credit.products || []),
+                    payments: JSON.stringify(credit.payments || []),
+                    notes: credit.notes || '',
+                    mora_enabled: credit.moraEnabled || true,
+                    last_reminder_date: credit.lastReminderDate,
+                    last_contact_date: credit.lastContactDate,
+                    last_payment_date: credit.lastPaymentDate
+                }])
+                .select();
+
+            if (error) throw error;
+            console.log('✅ Crédito guardado:', credit.creditId);
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('❌ Error guardando crédito:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getAll() {
+        try {
+            const { data, error } = await SupabaseAuth.client
+                .from('credits')
+                .select('*')
+                .order('created_date', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('❌ Error obteniendo créditos:', error);
+            return [];
+        }
+    },
+
+    async update(creditId, updates) {
+        try {
+            const { data, error } = await SupabaseAuth.client
+                .from('credits')
+                .update({
+                    paid_installments: updates.paidInstallments,
+                    pending_amount: updates.pendingAmount,
+                    next_due_date: updates.nextDueDate,
+                    status: updates.status,
+                    delivery_status: updates.deliveryStatus,
+                    payments: JSON.stringify(updates.payments),
+                    last_payment_date: updates.lastPaymentDate
+                })
+                .eq('credit_id', creditId)
+                .select();
+
+            if (error) throw error;
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('❌ Error actualizando:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async delete(creditId) {
+        try {
+            const { error } = await SupabaseAuth.client
+                .from('credits')
+                .delete()
+                .eq('credit_id', creditId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            console.error('❌ Error eliminando:', error);
+            return { success: false, error: error.message };
+        }
+    }
+};
+
+// ========================================
 // PROTECCIÓN: Verificar autenticación con Supabase
-// ============================================================================
+// ========================================
 
 async function checkAuth() {
   const session = await SupabaseAuth.getSession();
@@ -1294,7 +1425,66 @@ async function checkAuth() {
   } catch (error) {
     console.log('Error sincronizando:', error);
   }
-  
+ // Sincronizar transacciones al iniciar sesión
+try {
+    const { data } = await SupabaseTransactions.getAll();
+    if (data && data.length > 0) {
+        const txs = data.map(tx => ({
+            amount: tx.amount,
+            finalAmountVES: tx.finalamountves,
+            txHash: tx.txhash,
+            timestamp: new Date(tx.createdat).getTime(),
+            status: tx.status,
+            token: tx.paymentmethod || 'CASH',
+            transactionId: tx.transactionid,
+            moraDays: tx.moradays || 0,
+            moraAmountVES: tx.moraamountves || 0,
+            moraApplied: tx.moraapplied || false
+        }));
+        SecureStorage.setItem('transactions', txs);
+        console.log(`📊 Sincronizado ${txs.length} ventas`);
+    }
+} catch (error) {
+    console.log('Error sincronizando:', error);
+}
+
+// ✅ SINCRONIZAR CRÉDITOS AL INICIAR SESIÓN
+try {
+    const creditsData = await SupabaseCredits.getAll();
+    if (creditsData && creditsData.length > 0) {
+        const credits = creditsData.map(c => ({
+            creditId: c.credit_id,
+            clientName: c.client_name,
+            clientPhone: c.client_phone,
+            totalAmount: c.total_amount,
+            currency: c.currency,
+            numberOfInstallments: c.number_of_installments,
+            installmentAmount: c.installment_amount,
+            frequency: c.frequency,
+            paidInstallments: c.paid_installments,
+            pendingAmount: c.pending_amount,
+            createdDate: c.created_date,
+            firstDueDate: c.first_due_date,
+            nextDueDate: c.next_due_date,
+            status: c.status,
+            deliveryStatus: c.delivery_status,
+            products: JSON.parse(c.products || '[]'),
+            payments: JSON.parse(c.payments || '[]'),
+            notes: c.notes || '',
+            moraEnabled: c.mora_enabled !== false,
+            lastReminderDate: c.last_reminder_date,
+            lastContactDate: c.last_contact_date,
+            lastPaymentDate: c.last_payment_date
+        }));
+        
+        SecureStorage.setItem('credits-active', credits);
+        localStorage.setItem('creditSales', JSON.stringify(credits));
+        console.log(`💳 Sincronizado ${credits.length} créditos`);
+    }
+} catch (error) {
+    console.log('Error sincronizando créditos:', error);
+}
+
   return true;
 }
 
@@ -3453,8 +3643,13 @@ class CreditManager {
     }
 
     saveCredits() {
-        localStorage.setItem('creditSales', JSON.stringify(this.credits));
-    }
+    // Guardar en LocalStorage
+    localStorage.setItem('creditSales', JSON.stringify(this.credits));
+    
+    // ✅ Guardar en SecureStorage cifrado
+    SecureStorage.setItem('credits-active', this.credits);
+}
+
 
     generateCreditId() {
         const timestamp = Date.now();
@@ -3462,35 +3657,44 @@ class CreditManager {
         return `CR-${timestamp}-${random}`;
     }
 
-    createCredit(creditData) {
-        const credit = {
-            creditId: this.generateCreditId(),
-            clientName: creditData.clientName,
-            clientPhone: creditData.clientPhone,
-            totalAmount: parseFloat(creditData.totalAmount),
-            currency: creditData.currency || 'USD',
-            numberOfInstallments: parseInt(creditData.numberOfInstallments),
-            installmentAmount: parseFloat(creditData.totalAmount) / parseInt(creditData.numberOfInstallments),
-            frequency: creditData.frequency || 'semanal',
-            paidInstallments: 0,
-            pendingAmount: parseFloat(creditData.totalAmount),
-            createdDate: new Date().toISOString(),
-            firstDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
-            nextDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
-            status: 'active',
-            deliveryStatus: creditData.deliveryNow ? 'delivered' : 'pending',
-            products: creditData.products || [],
-            payments: [],
-            notes: creditData.notes || '',
-            moraEnabled: true,
-            lastReminderDate: null,
-            lastContactDate: null
-        };
-
-        this.credits.push(credit);
-        this.saveCredits();
-        return credit;
+           async createCredit(creditData) {
+    const credit = {
+        creditId: this.generateCreditId(),
+        clientName: creditData.clientName,
+        clientPhone: creditData.clientPhone,
+        totalAmount: parseFloat(creditData.totalAmount),
+        currency: creditData.currency || 'USD',
+        numberOfInstallments: parseInt(creditData.numberOfInstallments),
+        installmentAmount: parseFloat(creditData.totalAmount) / parseInt(creditData.numberOfInstallments),
+        frequency: creditData.frequency || 'semanal',
+        paidInstallments: 0,
+        pendingAmount: parseFloat(creditData.totalAmount),
+        createdDate: new Date().toISOString(),
+        firstDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
+        nextDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
+        status: 'active',
+        deliveryStatus: creditData.deliveryNow ? 'delivered' : 'pending',
+        products: creditData.products || [],
+        payments: [],
+        notes: creditData.notes || '',
+        moraEnabled: true,
+        lastReminderDate: null,
+        lastContactDate: null,
+        lastPaymentDate: null
+    };
+    
+    this.credits.push(credit);
+    this.saveCredits();
+    
+    // ✅ SYNC CON SUPABASE
+    const result = await SupabaseCredits.create(credit);
+    if (!result.success) {
+        console.error('⚠️ No se pudo sincronizar crédito con Supabase');
+        UI.showToast('Crédito guardado localmente (sin sync)');
     }
+    
+    return credit;
+}
 
     calculateFirstDueDate(frequency) {
         const now = new Date();
@@ -3514,36 +3718,53 @@ class CreditManager {
         return date.toISOString();
     }
 
-    registerPayment(creditId, paymentAmount, paymentMethod = 'efectivo') {
-        const credit = this.credits.find(c => c.creditId === creditId);
-        if (!credit) return null;
+    async registerPayment(creditId, paymentAmount, paymentMethod = 'efectivo') {
+    const credit = this.credits.find(c => c.creditId === creditId);
+    if (!credit) return null;
 
-        const payment = {
-            paymentId: `PAY-${Date.now()}`,
-            amount: parseFloat(paymentAmount),
-            date: new Date().toISOString(),
-            method: paymentMethod,
-            previousBalance: credit.pendingAmount
-        };
+    const payment = {
+        paymentId: `PAY-${Date.now()}`,
+        amount: parseFloat(paymentAmount),
+        date: new Date().toISOString(),
+        method: paymentMethod,
+        previousBalance: credit.pendingAmount
+    };
 
-        credit.pendingAmount -= payment.amount;
-        credit.paidInstallments += 1;
-        credit.payments.push(payment);
-        credit.lastPaymentDate = payment.date;
+    credit.pendingAmount -= payment.amount;
+    credit.paidInstallments += 1;
+    credit.payments.push(payment);
+    credit.lastPaymentDate = payment.date;
 
-        // Calcular próxima fecha de vencimiento
-        if (credit.pendingAmount > 0) {
-            credit.nextDueDate = this.calculateNextDueDate(credit.nextDueDate, credit.frequency);
-            credit.status = 'active';
-        } else {
-            credit.status = 'completed';
-            credit.pendingAmount = 0;
-            credit.deliveryStatus = 'delivered';
-        }
-
-        this.saveCredits();
-        return { credit, payment };
+    // Calcular próxima fecha
+    if (credit.pendingAmount > 0) {
+        credit.nextDueDate = this.calculateNextDueDate(credit.nextDueDate, credit.frequency);
+        credit.status = 'active';
+    } else {
+        credit.status = 'completed';
+        credit.pendingAmount = 0;
+        credit.deliveryStatus = 'delivered';
     }
+
+    this.saveCredits();
+    
+    // ✅ SYNC CON SUPABASE
+    const result = await SupabaseCredits.update(creditId, {
+        paidInstallments: credit.paidInstallments,
+        pendingAmount: credit.pendingAmount,
+        nextDueDate: credit.nextDueDate,
+        status: credit.status,
+        deliveryStatus: credit.deliveryStatus,
+        payments: credit.payments,
+        lastPaymentDate: credit.lastPaymentDate
+    });
+    
+    if (!result.success) {
+        console.error('⚠️ No se pudo sincronizar pago con Supabase');
+    }
+    
+    return { credit, payment };
+}
+
 
     getCredit(creditId) {
         return this.credits.find(c => c.creditId === creditId);
@@ -3584,10 +3805,17 @@ class CreditManager {
             .reduce((sum, c) => sum + c.pendingAmount, 0);
     }
 
-    deleteCredit(creditId) {
-        this.credits = this.credits.filter(c => c.creditId !== creditId);
-        this.saveCredits();
+    async deleteCredit(creditId) {
+    this.credits = this.credits.filter(c => c.creditId !== creditId);
+    this.saveCredits();
+    
+    // ✅ SYNC CON SUPABASE
+    const result = await SupabaseCredits.delete(creditId);
+    if (!result.success) {
+        console.error('⚠️ No se pudo eliminar crédito en Supabase');
     }
+}
+
 
     getStats() {
         const active = this.getActiveCredits();
@@ -3899,7 +4127,8 @@ function calculateInstallmentAmount() {
     amountDisplay.value = `${symbol}${installmentAmount}`;
 }
 
-function createCreditSale() {
+async function createCreditSale() {
+
     const clientName = document.getElementById('credit-client-name').value.trim();
     const clientPhone = document.getElementById('credit-client-phone').value.trim();
     const productName = document.getElementById('credit-product-name').value.trim();
@@ -3955,7 +4184,7 @@ function createCreditSale() {
         notes
     };
 
-    const credit = creditManager.createCredit(creditData);
+    const credit = await creditManager.createCredit(creditData);
     const message = CreditWhatsAppMessages.generateInitialMessage(credit);
     
     WhatsAppManager.openWhatsApp(message, null);
@@ -4189,7 +4418,7 @@ function closeRegisterPaymentModal() {
 const modal = document.getElementById('register-payment-modal');
 if (modal) modal.remove();
 }
-function confirmCreditPayment(creditId) {
+async function confirmCreditPayment(creditId) {
 const amount = parseFloat(document.getElementById('payment-amount').value);
 const method = document.getElementById('payment-method').value;
 if (!amount || amount <= 0) {
@@ -4203,7 +4432,7 @@ if (amount > credit.pendingAmount) {
     return;
 }
 
-const result = creditManager.registerPayment(creditId, amount, method);
+const result = await creditManager.registerPayment(creditId, amount, method);
 
 if (result) {
     const message = CreditWhatsAppMessages.generatePaymentMessage(result.credit, result.payment);
@@ -4332,9 +4561,9 @@ function closeCreditDetailsModal() {
 const modal = document.getElementById('credit-details-modal');
 if (modal) modal.remove();
 }
-function deleteCreditConfirm(creditId) {
-if (confirm('⚠️ ¿Eliminar este crédito?\nEsta acción no se puede deshacer.')) {
-creditManager.deleteCredit(creditId);
+async function deleteCreditConfirm(creditId) {
+    if (confirm('¿Eliminar este crédito?')) {
+        await creditManager.deleteCredit(creditId);
 UI.showToast('✅ Crédito eliminado');
 closeCreditDetailsModal();
 closeCreditsPanel();
@@ -4508,7 +4737,7 @@ document.querySelectorAll('.pending-tx-item').forEach(item => {
 item.style.background = 'rgba(255,255,255,0.05)';
 });
 }
-function confirmCreditPaymentConciliation() {
+async function confirmCreditPaymentConciliation() {
 const creditId = document.getElementById('selected-credit-id').value;
 const amount = parseFloat(document.getElementById('credit-payment-amount').value);
 const reference = document.getElementById('credit-payment-reference').value.trim();
@@ -4537,7 +4766,7 @@ if (amount > credit.pendingAmount) {
     }
 }
 
-const result = creditManager.registerPayment(creditId, amount, method);
+const result = await creditManager.registerPayment(creditId, amount, method);
 
 if (result) {
     const message = CreditWhatsAppMessages.generatePaymentMessage(result.credit, result.payment);
