@@ -134,10 +134,11 @@
   touch-action: manipulation;
 }
 
-/* ✅ CRÍTICO: Bloquear eventos en hijos de .key */
+/* ✅ FUERA DEL .key */
 .key * {
   pointer-events: none;
 }
+
 
 
         .key:hover { background: #282828; }
@@ -889,7 +890,12 @@
                 <span id="tokenSymbolDisplay">USDT</span>
             </button>
 
-            <button class="key pay-key" data-action="select-payment">PAGAR</button>
+            <button class="key pay-key" data-action="select-payment"></button>
+            .pay-key::after {
+  content: "PAGAR";
+  pointer-events: none;
+}
+
             <button class="key" style="background: var(--info); font-size: 1rem; grid-column: span 2;" data-action="history">Historial / Exportar</button>
         </div>
     </div>
@@ -3219,8 +3225,16 @@ const HistoryManager = {
     init() {
     // ✅ Teclado principal - VERSIÓN SIMPLE QUE FUNCIONA
     document.querySelector('.keypad-area').addEventListener('click', (e) => {
-      const key = e.target.closest('.key');
-      if (!key) return;
+  console.log('🔍 Click detectado en:', e.target);
+  
+  const key = e.target.closest('.key');
+  if (!key) {
+    console.log('❌ NO encontró .key');
+    return;
+  }
+  
+  console.log('✅ Key encontrada:', key);
+
       
       Auth.registerActivity();
       Utils.vibrate(10);
