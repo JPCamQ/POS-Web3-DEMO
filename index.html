@@ -3198,27 +3198,26 @@ const HistoryManager = {
     };
 
     const EventHandlers = {
-    init() {
-        // ✅ FIX ANDROID 11: usar .key en lugar de [data-value], [data-action]
-        document.querySelector('.keypad-area').addEventListener('click', (e) => {
-            const key = e.target.closest('.key');  // ← CAMBIO AQUÍ
-            if (!key) return;
+        init() {
+            document.querySelector('.keypad-area').addEventListener('click', (e) => {
+                const key = e.target.closest('[data-value], [data-action]');
+                if (!key) return;
 
-            Auth.registerActivity();
-            Utils.vibrate(10);
+                Auth.registerActivity();
+                Utils.vibrate(10);
 
-            const value = key.dataset.value;
-            const action = key.dataset.action;
+                const value = key.dataset.value;
+                const action = key.dataset.action;
 
-            if (value !== undefined) this.handleNumericInput(value);
-            else if (action) this.handleAction(action);
+                if (value !== undefined) this.handleNumericInput(value);
+                else if (action) this.handleAction(action);
 
-            UI.updateDisplay();
-        });
+                UI.updateDisplay();
+            });
 
-        // PIN (esto está bien)
-        document.getElementById('pinKeypad').addEventListener('click', (e) => {
-            const key = e.target.closest('.pin-key');
+            document.getElementById('pinKeypad').addEventListener('click', (e) => {
+                const key = e.target.closest('.pin-key');
+                if (!key) return;
 
                 const value = key.dataset.pinValue;
                 const action = key.dataset.pinAction;
