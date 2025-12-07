@@ -131,13 +131,14 @@
   cursor: pointer;
   transition: all 0.1s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  touch-action: manipulation; /* ⬅️ CRÍTICO */
+  touch-action: manipulation;
 }
 
-/* ⬅️ ESTO ES LO MÁS IMPORTANTE */
+/* ✅ CRÍTICO: Bloquear eventos en hijos de .key */
 .key * {
   pointer-events: none;
 }
+
 
         .key:hover { background: #282828; }
         .key:active { transform: scale(0.98); background: #303030; }
