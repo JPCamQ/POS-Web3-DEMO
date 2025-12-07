@@ -3198,10 +3198,39 @@ const HistoryManager = {
     };
 
     const EventHandlers = {
-        init() {
-            document.querySelector('.keypad-area').addEventListener('click', (e) => {
-                const key = e.target.closest('[data-value], [data-action]');
-                if (!key) return;
+  init() {
+    // Fix para móvil: usar touchstart + click
+    const keypadArea = document.querySelector('.keypad-area');
+    
+    const handleKeyPress = (e) => {
+      // Prevenir doble disparo en móvil
+      if (e.type === 'touchstart') {
+        e.preventDefault();
+      }
+      
+      // Buscar el botón aunque se toque un hijo
+      const key = e.target.closest('.key');
+      if (!key) return;
+      
+      Auth.registerActivity();
+      Utils.vibrate(10);
+      
+      const value = key.dataset.value;
+      const action = key.dataset.action;
+      
+      if (value !== undefined) {
+        this.handleNumericInput(value);
+      } else if (action) {
+        this.handleAction(action);
+      }
+      
+      UI.updateDisplay();
+    };
+    
+    // Escuchar AMBOS eventos
+    keypadArea.addEventListener('click', handleKeyPress);
+    keypadArea.addEventListener('touchstart', handleKeyPress, { passive: false });
+
 
                 Auth.registerActivity();
                 Utils.vibrate(10);
