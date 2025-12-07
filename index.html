@@ -3199,18 +3199,9 @@ const HistoryManager = {
 
     const EventHandlers = {
   init() {
-    // ✅ FIX MÓVIL: Usar touchstart + click para mejor respuesta táctil
-    const keypadArea = document.querySelector('.keypad-area');
-    
-    const handleKeyPress = (e) => {
-  // Prevenir doble disparo en móvil
-  if (e.type === 'touchstart') {
-    e.preventDefault();
-  }
-
-
-      
-      // Buscar el botón aunque se toque un hijo (span, etc)
+    // ✅ SOLUCIÓN SIMPLE: Solo click, buscar .key directamente
+    document.querySelector('.keypad-area').addEventListener('click', (e) => {
+      // Buscar el botón .key (funciona aunque toques un hijo)
       const key = e.target.closest('.key');
       if (!key) return;
       
@@ -3227,7 +3218,8 @@ const HistoryManager = {
       }
       
       UI.updateDisplay();
-    };
+    });
+
     
     // Escuchar AMBOS eventos (táctil + click)
     keypadArea.addEventListener('click', handleKeyPress);
