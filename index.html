@@ -1,0 +1,4753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>📠 Web3 POS - USD/VES</title>
+
+    <meta name="generator" content="Web3 POS v5.2 - Config Fix - Diciembre 2025">
+    <meta property="og:title" content="📠 Web3 POS v5.2 - Recibe USDT/USDC al instante">
+    <meta property="og:description" content="La forma más rápida y sencilla de aceptar criptomonedas estables en tu negocio.">
+
+    <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Punto%20de%20Venta%20Web3%22%2C%22short_name%22%3A%22POS%20Web3%22%2C%22description%22%3A%22Sistema%20de%20punto%20de%20venta%20con%20criptomonedas%20y%20pago%20m%C3%B3vil%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22background_color%22%3A%22%230a0e17%22%2C%22theme_color%22%3A%22%230a0e17%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Ctext%2520y%253D%2527.9em%2527%2520font-size%253D%252790%2527%253E%25F0%259F%2592%25B3%253C%252Ftext%25253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📠%3C/text%3E%3C/svg%3E">
+
+    <style>
+        :root {
+            --ws-green: #25D366; --ws-dark: #128C7E; --dark-bg: #0a0e17; --card-bg: #111111;
+            --white: #ffffff; --gray-text: #b0b3b8; --copy-btn: #333333; --success: #00c853;
+            --warning: #ffc107; --danger: #e04f5e; --info: #1a73e8; --discount: #e91e63;
+            --tip: #ff9800; --pago-movil: #00a89d;
+        }
+
+       @media (prefers-color-scheme: light) {
+    .toggle-option {
+        background: #f8f9fa;
+        color: #333333;
+        border: 1px solid #ddd;
+    }
+            body { color: var(--white); }
+            .pos-container { border: 1px solid rgba(0,0,0,0.1); }
+            .display-area { background: #e9ecef; }
+            .amount-display { color: #212529; }
+            .key { background: #f0f0f0; color: #212529; }
+            .num-key { background: #fdfdfd; }
+            .modal-content { background: #ffffff; }
+            .pin-key { background: #f0f0f0; color: #212529; }
+        }
+
+        *, *::before, *::after { 
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        input, textarea, .address-value, .crypto-value, .tx-hash { user-select: text; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; color: var(--white);
+            padding: 20px 10px;
+        }
+
+        .pos-container {
+            width: 100%; max-width: 480px;
+            background: var(--card-bg); border-radius: 20px;
+            overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; min-height: 90vh;
+        }
+
+        .display-area {
+            padding: 15px 15px 35px;
+            background: #0f0f0f;
+            display: flex; flex-direction: column;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            min-height: 160px;
+        }
+
+        #topHeader {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-bottom: 10px; gap: 8px;
+        }
+
+        #rateDisplay {
+            font-size: 0.7rem; color: var(--warning); font-weight: 700;
+            padding: 5px 10px; border-radius: 15px; background: rgba(255,193,7,0.15);
+            white-space: nowrap;
+        }
+
+        #sessionIndicator {
+            font-size: 0.65rem; color: var(--gray-text); padding: 4px 8px;
+            border-radius: 10px; background: rgba(255,255,255,0.05); white-space: nowrap;
+        }
+
+        .display-main {
+            display: flex; flex-direction: column; align-items: flex-end;
+            flex-grow: 1; justify-content: center;
+        }
+
+        .currency-label {
+            font-size: 0.9rem; color: var(--gray-text); font-weight: 700;
+            cursor: pointer; padding: 4px 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.05); transition: all 0.2s;
+            margin-bottom: 5px;
+        }
+        .currency-label:hover { color: var(--info); background: rgba(26,115,232,0.15); }
+
+        .amount-display {
+            font-size: 2.8rem; font-weight: 800; color: var(--white);
+            letter-spacing: -2px; line-height: 1;
+        }
+
+        #secondaryDisplay {
+            font-size: 1rem; color: var(--gray-text); font-weight: 600;
+            position: absolute; bottom: 8px; left: 15px;
+        }
+
+        .discount-label {
+            font-size: 0.75rem; color: var(--discount); font-weight: 600;
+            margin-top: 5px; text-align: right;
+        }
+
+        .keypad-area {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; padding: 15px; flex-grow: 1;
+        }
+
+        .key {
+            background: #202020; color: var(--white); border: none;
+            border-radius: 10px; font-size: 1.5rem; font-weight: 600;
+            padding: 16px 0; cursor: pointer; transition: all 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .key:hover { background: #282828; }
+        .key:active { transform: scale(0.98); background: #303030; }
+
+        .num-key { background: #2a2a2a; }
+        .num-key:hover { background: #333; }
+
+        .delete-key { background: var(--danger); }
+        .clear-key { background: var(--warning); color: #111; }
+
+        .pay-key {
+            grid-column: span 2; background: linear-gradient(90deg, var(--ws-green), var(--ws-dark));
+            font-size: 1.2rem; font-weight: 800;
+        }
+        .pay-key:hover { box-shadow: 0 4px 10px rgba(37,211,102,0.4); }
+
+        .discount-key { background: var(--discount); font-size: 0.9rem; }
+        .tip-key { background: var(--tip); font-size: 0.9rem; color: #111; }
+
+        .token-key {
+            background: var(--info); font-size: 0.9rem; padding: 10px 0;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; line-height: 1.1;
+        }
+
+        /* MODALES */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(5px); z-index: 9990; display: none;
+            align-items: center; justify-content: center; animation: fadeIn 0.3s;
+            overflow-y: auto;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg); border-radius: 16px;
+            max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.3s;
+            margin: 20px 0;
+        }
+
+        .modal-header {
+            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem; font-weight: 700; flex-grow: 1; text-align: center;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.1); border: none; color: var(--white);
+            width: 32px; height: 32px; border-radius: 50%; font-size: 1.5rem;
+            cursor: pointer; transition: all 0.2s; margin-left: 10px;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+        .modal-body { padding: 20px; text-align: center; }
+
+        .crypto-value {
+            font-size: 1.8rem; font-weight: 900; color: var(--ws-green);
+            background: rgba(37,211,102,0.1); padding: 8px; border-radius: 8px; cursor: pointer;
+        }
+
+        .qr-container {
+            background: var(--white); padding: 15px; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            margin: 20px auto; max-width: 250px; width: 100%;
+        }
+        .qr-container img, .qr-container canvas { display: block; max-width: 100%; height: auto; }
+
+        .address-section {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 20px;
+        }
+
+        .address-label {
+            font-size: 0.7rem; color: var(--gray-text); margin-bottom: 8px; display: block;
+        }
+
+        .address-value {
+            font-size: 0.7rem; color: var(--white); font-family: monospace;
+            word-break: break-all; margin-bottom: 12px; display: block;
+        }
+
+        .btn-copy {
+            width: 100%; padding: 10px; border: none; background: var(--copy-btn);
+            color: var(--white); border-radius: 6px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        /* Agrupación de botones */
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .button-group button {
+    margin-bottom: 10px;
+  }
+  .button-group:last-of-type {
+  margin-bottom: 20px;
+}
+        .btn-copy:hover { background: #555; }
+
+        .pay-option-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;
+            cursor: pointer; transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .pay-option-btn:active { transform: scale(0.98); }
+
+        .crypto-option { background: var(--ws-green); color: var(--dark-bg); }
+        .pagomovil-option { background: var(--pago-movil); color: var(--white); }
+        .pagomovil-qr-option { background: var(--info); color: var(--white); }
+
+        .pago-movil-data {
+            text-align: center; padding: 15px; background: rgba(0,168,157,0.1);
+            border: 1px solid var(--pago-movil); border-radius: 8px; margin-top: 20px;
+        }
+        .pago-movil-data h3 { font-size: 1.1rem; color: var(--pago-movil); margin-bottom: 10px; }
+        .pago-movil-data p { font-size: 1.5rem; font-weight: 900; color: var(--white); }
+
+        .pm-detail-box {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;
+            margin-top: 15px; text-align: center;
+        }
+        .pm-detail-item { display: block; font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+        .pm-detail-label { font-size: 0.8rem; color: var(--gray-text); display: block; }
+
+        .config-group {
+            margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05);
+            border-radius: 8px; text-align: left;
+        }
+        .config-group label {
+            display: block; font-size: 0.8rem; color: var(--gray-text); margin-bottom: 5px; font-weight: 600;
+        }
+        .config-group input, .config-group select, .config-group textarea {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
+            background: #2a2d3a; color: var(--white); font-size: 0.9rem; margin-bottom: 10px;
+        }
+        .config-group input[type="number"] {
+            width: 30%; display: inline-block; margin-right: 10px; text-align: center;
+        }
+        .percent-symbol { font-weight: 700; color: var(--gray-text); }
+
+        .token-config-item {
+            display: grid; grid-template-columns: 1fr 2fr 40px; gap: 10px;
+            align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .token-symbol { font-weight: 700; color: var(--info); font-size: 0.8rem; }
+        .token-checkbox { width: 20px !important; height: 20px; margin: 0; cursor: pointer; }
+
+        .mode-toggle {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; font-size: 0.9rem; color: var(--white);
+        }
+        .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; inset: 0; background-color: var(--danger);
+            transition: 0.4s; border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px;
+            left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        #configButton {
+            background: transparent; border: none; color: var(--gray-text);
+            font-size: 1.2rem; cursor: pointer; transition: color 0.2s, transform 0.4s;
+            padding: 0; margin-right: 10px;
+        }
+        #configButton:hover { color: var(--info); transform: rotate(90deg); }
+
+        .tx-item {
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px;
+            margin-bottom: 10px; border-left: 3px solid var(--success);
+            display: flex; justify-content: space-between; align-items: center; /* Para botón delete */
+        }
+        /* Ajuste para contenido del tx-item */
+        .tx-content-wrapper { flex-grow: 1; }
+
+        .tx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .tx-amount { font-size: 1.1rem; font-weight: 800; color: var(--ws-green); }
+        .tx-time { font-size: 0.75rem; color: var(--gray-text); }
+        .tx-hash { font-size: 0.65rem; font-family: monospace; color: var(--gray-text); word-break: break-all; }
+        
+        .delete-btn {
+            background: transparent; border: none; color: var(--gray-text); 
+            font-size: 1.2rem; padding: 5px 10px; cursor: pointer;
+            transition: color 0.2s;
+        }
+        .delete-btn:hover { color: var(--danger); }
+        .delete-btn.confirming { color: var(--danger); animation: pulse 0.5s infinite; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-text); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 10px; }
+
+        .pending-tx-item {
+            width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px;
+            border: 1px solid var(--danger); background: rgba(224,79,94,0.1);
+            color: var(--white); font-weight: 600; cursor: pointer;
+            transition: background 0.2s; display: flex; justify-content: space-between;
+            align-items: center; font-size: 0.95rem; text-align: left;
+        }
+        .pending-tx-item:hover { background: rgba(224,79,94,0.2); }
+        .pending-tx-amount { color: var(--danger); font-weight: 800; }
+
+        #authModal .modal-content { max-width: 320px; }
+        #authModal .pin-input {
+            width: 80%; margin: 20px auto 10px; text-align: center;
+            font-size: 2rem; letter-spacing: 10px; background: #2a2d3a;
+            border: none; border-bottom: 3px solid var(--gray-text);
+            color: var(--white); padding: 5px; border-radius: 0; outline: none;
+        }
+        #pinKeypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .pin-key {
+            background: #2a2a2a; color: var(--white); border: none; border-radius: 10px;
+            font-size: 1.5rem; font-weight: 600; padding: 15px 0; cursor: pointer;
+            transition: all 0.1s;
+        }
+        .pin-key:active { transform: scale(0.95); background: #444; }
+        .pin-delete { background: var(--danger); font-size: 1.2rem; }
+
+        .toast {
+            visibility: hidden; min-width: 250px; background: linear-gradient(135deg, #2a2d3a, #1a1d2e);
+            color: var(--white); text-align: center; border-radius: 50px; padding: 14px 24px;
+            position: fixed; z-index: 99999; left: 50%; bottom: 30px;
+            transform: translateX(-50%); font-size: 0.9rem; font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.show { visibility: visible; animation: toastIn 0.5s, toastOut 0.5s 2.5s; }
+
+        .status-banner {
+            padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: 600;
+            display: none;
+        }
+        .status-banner.waiting {
+            background: rgba(255,193,7,0.2); color: var(--warning);
+            border: 1px solid var(--warning); display: block;
+        }
+        .status-banner.confirmed {
+            background: rgba(0,200,83,0.2); color: var(--success);
+            border: 1px solid var(--success); display: block;
+        }
+
+        .warning-box {
+            background: rgba(255,193,7,0.1); border-left: 3px solid var(--warning);
+            padding: 12px; border-radius: 6px; font-size: 0.75rem;
+            color: var(--warning); margin-top: 15px; text-align: left;
+        }
+
+        /* Estilos Scanner */
+        #reader { border-radius: 8px; overflow: hidden; margin-bottom: 10px; border: 2px solid var(--info); }
+        #reader video { object-fit: cover; border-radius: 8px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastIn { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes toastOut { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* ==========================================
+   ESTILOS PARA MÓDULO DE CRÉDITOS
+   ========================================== */
+
+/* Toggle de tipo de pago */
+.payment-type-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.toggle-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.toggle-label input[type="radio"] {
+    display: none;
+}
+
+.toggle-option {
+    flex: 1; padding: 15px; text-align: center;
+    background: var(--white); /* Fondo según tema */
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px; transition: all 0.3s ease;
+    font-weight: 600;
+    color: var(--gray-text); /* Texto base */
+    cursor: pointer;
+}
+
+.toggle-label input[type="radio"]:checked + .toggle-option {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff !important; /* Texto blanco al estar activo */
+    border-color: #667eea;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Secciones de pago */
+.payment-section {
+    animation: fadeIn 0.3s ease;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.payment-method-btn {
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.payment-method-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Formulario de crédito */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group input[readonly] {
+    background: #f8f9fa;
+    cursor: not-allowed;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* Panel de créditos */
+.credits-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-card.warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-card.success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-value {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+/* Filtros */
+.credits-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Tarjetas de crédito */
+.credits-list {
+    display: grid;
+    gap: 15px;
+}
+
+.credit-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.credit-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.credit-card.overdue {
+    border-color: #e74c3c;
+    background: #fff5f5;
+}
+
+.credit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+}
+
+.credit-header h4 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.credit-id {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+.credit-status {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-overdue {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.credit-info {
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.credit-progress {
+    margin: 15px 0;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+.credit-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.btn-action {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.btn-payment {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.btn-reminder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-details {
+    background: #f8f9fa;
+    color: #2c3e50;
+    border: 2px solid #ddd;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Detalles del crédito */
+.detail-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.detail-section p {
+    margin: 8px 0;
+}
+
+.product-item,
+.payment-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.payment-method {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin-left: 10px;
+}
+
+.payment-date {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+.payments-history {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-size: 1.1em;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .payment-type-selector {
+        flex-direction: column;
+    }
+    
+    .credits-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .credit-actions {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
+}
+    
+    /* Fix para inputs ocultos - eliminar cualquier espacio residual */
+    input[type="file"][style*="display:none"],
+    input[type="file"][style*="display: none"] {
+        display: none !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    </style>
+    <!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="03_supabase-client.js"></script>
+
+</head>
+<body>
+    <div class="pos-container">
+        <div class="display-area">
+            <div id="topHeader">
+                <span id="rateDisplay">1 USD = 0.00 VES</span>
+                <span id="sessionIndicator">Sesión: 0min</span>
+            </div>
+
+            <div class="display-main">
+                <div id="currencyLabel" class="currency-label">USD</div>
+                <div id="display" class="amount-display">0.00</div>
+                <div id="discountDisplay" class="discount-label" style="display: none;"></div>
+            </div>
+            <div id="secondaryDisplay"></div>
+        </div>
+
+        <div class="keypad-area">
+            <button class="key num-key" data-value="1">1</button>
+            <button class="key num-key" data-value="2">2</button>
+            <button class="key num-key" data-value="3">3</button>
+            <button class="key delete-key" data-action="delete">⌫</button>
+
+            <button class="key num-key" data-value="4">4</button>
+            <button class="key num-key" data-value="5">5</button>
+            <button class="key num-key" data-value="6">6</button>
+            <button class="key clear-key" data-action="clear">C</button>
+
+            <button class="key num-key" data-value="7">7</button>
+            <button class="key num-key" data-value="8">8</button>
+            <button class="key num-key" data-value="9">9</button>
+            <button class="key discount-key" data-action="discount"><span id="discountPercent">10</span>% OFF</button>
+
+            <button class="key tip-key" data-action="tip">+<span id="tipPercent">15</span>% Tip</button>
+            <button class="key num-key" data-value="0">0</button>
+            <button class="key" data-action="decimal">.</button>
+            <button class="key token-key" data-action="change-crypto">
+                <small>Cambiar</small>
+                <span id="tokenSymbolDisplay">USDT</span>
+            </button>
+
+            <button class="key pay-key" data-action="select-payment">PAGAR</button>
+            <button class="key" style="background: var(--info); font-size: 1rem; grid-column: span 2;" data-action="history">Historial / Exportar</button>
+        </div>
+    </div>
+
+   
+    <!-- Modales -->
+    <div id="paymentSelectionModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <div class="modal-title">Seleccionar Pago</div>
+                <button class="close-btn" data-close="paymentSelectionModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem; color: var(--white); margin-bottom: 20px;">
+                    Monto: <span id="finalPaymentAmountVES" style="font-weight: 900;">0.00 VES</span>
+                </p>
+                <button class="pay-option-btn crypto-option" data-payment="crypto">💰 Criptomonedas</button>
+                <button class="pay-option-btn pagomovil-qr-option" data-payment="pm-qr">📱 Pago Móvil QR</button>
+                <button class="pay-option-btn pagomovil-option" data-payment="pm-whatsapp">📲 Pago Móvil WhatsApp</button>
+        <button class="pay-option-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-payment="credits">
+            📊 Pago por Cuotas
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cryptoPaymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Pagar con Cripto</div>
+                <button class="close-btn" data-close="cryptoPaymentModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="statusBanner" class="status-banner"></div>
+                <p class="crypto-label">Monto: (<span id="paymentModalToken">USDT</span>)</p>
+                <p id="cryptoAmount" class="crypto-value">0.00 USD</p>
+                <p class="crypto-label">Red: <span id="networkLabel">BNB Smart Chain</span></p>
+                <div id="qrcode" class="qr-container"></div>
+                <p class="crypto-label">Escanea con tu wallet <span id="scanNetworkName">BEP-20</span></p>
+                <div class="address-section">
+                    <span class="address-label">Dirección:</span>
+                    <span id="walletAddressDisplay" class="address-value">0x...</span>
+                    <button class="btn-copy" data-copy="address">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pagoMovilModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <div class="modal-title">Pago Móvil</div>
+                <button class="close-btn" data-close="pagoMovilModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="pago-movil-data">
+                    <h3>Total (VES)</h3>
+                    <p id="pmAmountDisplay">0,00 VES</p>
+                    <small>ID: <strong><span id="pmUniqueIdDisplay">######</span></strong></small>
+                </div>
+                
+                <div id="pmRequestQrContainer" class="qr-container" style="padding: 10px; margin: 15px auto; width: 150px; height: 150px;"></div>
+                <p style="font-size: 0.7rem; color: var(--gray-text); margin-top: -10px; margin-bottom: 10px;">QR del Pedido (Para Cliente)</p>
+
+                <p style="font-size: 0.75rem; color: var(--pago-movil); font-weight: 600; margin-top: 5px;">Datos del Receptor:</p>
+                <div class="address-section" style="margin-top: 10px;">
+                    <span class="address-label">CI/RIF: <strong id="pmCifDisplay">V-00000000</strong></span>
+                    <span class="address-label">Teléfono: <strong id="pmPhoneDisplay">0412-0000000</strong></span>
+                    <span class="address-label">Banco: <strong id="pmBankDisplay">Banesco</strong></span>
+                    <button class="btn-copy" style="background: var(--pago-movil);" data-copy="pm-verbose">📋 Copiar Datos</button>
+                </div>
+                
+                <button class="btn-copy" style="margin-top: 10px;" data-copy="pm-clean">📄 Copiar (Limpio)</button>
+                
+                <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <!-- Botón de Descarga Directa (Horizontal) -->
+                    <button class="pay-option-btn" style="background: #E91E63; color: var(--white); margin:0; font-size: 0.9rem; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;" data-action="download-qr-image">
+                        <span>⬇️</span>
+                        <span>Descargar</span>
+                    </button>
+                    <!-- Botón Enviar WhatsApp (Horizontal) -->
+                    <button class="pay-option-btn" style="background: var(--ws-green); color: #0a0e17; margin:0; font-size: 0.9rem; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;" data-action="send-whatsapp">
+                        <span>📤</span>
+                        <span>WhatsApp</span>
+                    </button>
+                </div>
+                <!-- Botón Compartir (Secundario/Pequeño) -->
+                <button class="btn-copy" style="margin-top: 10px; background: transparent; border: 1px solid var(--gray-text); color: var(--gray-text);" data-action="share-qr-image">
+                    📷 Compartir (Nativo)
+                </button>
+
+                <button class="btn-copy" style="margin-top: 15px;" data-action="open-conciliation" data-source="pagoMovilModal">✅ Conciliar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pmStaticQrModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <div class="modal-title">QR Pago Móvil</div>
+                <button class="close-btn" data-close="pmStaticQrModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="pago-movil-data" style="margin-bottom: 20px;">
+                    <h3>Total (VES)</h3>
+                    <p id="pmStaticAmountDisplay">0,00 VES</p>
+                    <small>ID: <strong><span id="pmStaticUniqueIdDisplay">######</span></strong></small>
+                </div>
+                <div id="pmStaticQrContainer" class="qr-container"></div>
+                <p style="font-size: 0.9rem; color: var(--pago-movil);">Escanea con tu App bancaria</p>
+                <div class="pm-detail-box">
+                    <span class="pm-detail-label">CI/RIF:</span>
+                    <span id="pmStaticCifDisplay" class="pm-detail-item">V-00000000</span>
+                    <span class="pm-detail-label">Teléfono:</span>
+                    <span id="pmStaticPhoneDisplay" class="pm-detail-item" style="color: var(--pago-movil);">0412-0000000</span>
+                    <span class="pm-detail-label">Banco:</span>
+                    <span id="pmStaticBankDisplay" class="pm-detail-item" style="color: var(--pago-movil);">Banesco</span>
+                    <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                        <span class="pm-detail-label">Tasa:</span>
+                        <span id="pmStaticRateDisplay" class="pm-detail-item" style="color: var(--warning); font-size: 0.9rem;">1 USD = 0.00 VES</span>
+                    </div>
+                </div>
+                <button class="btn-copy" style="margin-top: 20px;" data-action="open-conciliation" data-source="pmStaticQrModal">✅ Conciliar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pmConfirmModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <div class="modal-title">Conciliación</div>
+                <button class="close-btn" data-close="pmConfirmModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="scanSection" style="margin-bottom: 15px;">
+                    <div id="reader" style="width: 100%; display:none;"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-copy" style="background: var(--info); display: flex; align-items: center; justify-content: center; gap: 5px;" data-action="start-camera-scan">
+                            📷 Cámara
+                        </button>
+                        <button class="btn-copy" style="background: var(--warning); color: #111; display: flex; align-items: center; justify-content: center; gap: 5px;" data-action="upload-qr-image">
+                            📂 Galería
+                        </button>
+                    </div>
+                    <input type="file" id="qrFileInput" accept="image/*" hidden>
+                </div>
+
+                <p style="margin-bottom: 5px; color: var(--white); font-weight: 600;">O buscar manual:</p>
+                <input type="text" id="pmQuickSearchInput" maxlength="6" autocomplete="off" placeholder="ID Pedido (6 dígitos)" style="width: 100%; padding: 10px; text-align: center; margin-bottom: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #2a2d3a; color: var(--white);">
+                <button class="btn-copy" style="margin-bottom: 20px; background: #333;" data-action="quick-search">🔍 Buscar ID</button>
+
+                <div id="pendingListContainer">
+                    <div id="pendingTxsList" style="max-height: 40vh; overflow-y: auto;"></div>
+                </div>
+
+                <div id="pmConfirmForm" style="display: none;">
+                    <div id="selectedTxDetails" class="pago-movil-data" style="margin-bottom: 20px; margin-top: 0;"></div>
+                    <p style="color: var(--gray-text);">Referencia (6 dígitos):</p>
+                    <input type="text" id="pmReferenceInput" maxlength="6" autocomplete="off" placeholder="••••••" style="width: 80%; padding: 10px; text-align: center; letter-spacing: 5px; margin: 10px auto; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #2a2d3a; color: var(--white); font-size: 1.5rem;">
+                    <button class="btn-copy" style="margin-top: 10px;" data-action="paste-reference">📄 Pegar</button>
+                    <input type="hidden" id="pmUniqueIdInput">
+                    <button id="reminderButton" class="btn-copy" style="margin-top: 15px; background: var(--danger); display: none;" data-action="send-reminder">🔔 Recordatorio (Mora)</button>
+                    <button class="btn-copy" style="margin-top: 10px; background: var(--pago-movil);" data-action="confirm-conciliation">✅ Confirmar</button>
+                    <button class="btn-copy" style="margin-top: 10px;" data-action="back-to-list">⬅️ Volver</button>
+                    <div class="warning-box" id="pmError" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <button id="configButton" data-action="open-config">⚙️</button>
+                <div class="modal-title">Historial</div>
+                <button class="close-btn" data-close="historyModal">×</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="historyView">
+    <div id="statsHistoryHeader"></div>
+
+  <!-- Grupo 1: Reportes -->
+  <div class="button-group">
+    <button class="btn-copy" style="background: var(--ws-green);" 
+            data-action="share-daily-report">
+      📤 Reporte del Día
+    </button>
+    <button class="btn-copy" style="background: var(--pago-movil);" 
+            data-action="open-conciliation" data-source="historyModal">
+      🔍 Conciliar
+    </button>
+    <button class="btn-copy" data-action="export-csv">
+      🗂️ Exportar CSV
+    </button>
+    <button class="btn-copy" 
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" 
+            onclick="UI.closeModal('historyModal'); showCreditsPanel();">
+      📂 Cartera de Créditos
+    </button>
+  </div>
+
+  <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
+
+  <!-- Grupo 2: Acciones -->
+  <div class="button-group">
+    <button class="btn-copy" style="background: var(--ws-green);" 
+            onclick="RateUpdater.forceUpdate()">
+      🔄 Actualizar Tasa Ahora
+    </button>
+    <button class="btn-copy" 
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" 
+            onclick="BackupManager.downloadBackup()">
+      💾 Descargar Backup
+    </button>
+    <button class="btn-copy" style="background: var(--warning);" 
+            onclick="document.getElementById('restoreBackupInput').click()">
+      📥 Restaurar Backup
+    </button>
+  </div>
+
+  <div id="historyContent" style="text-align: left;"></div>
+</div>
+
+                <div id="configView" style="display: none; text-align: left;">
+                    <div class="config-group">
+                        <label>🏪 Nombre del Negocio:</label>
+                        <input type="text" id="newBusinessName" placeholder="Mi Negocio" maxlength="50">
+                    </div>
+
+                    <div class="config-group">
+                        <label>💱 Tasa USD/VES:</label>
+                        <input type="number" id="newVesRate" placeholder="50.00" min="0.01" step="0.01">
+                        <p style="font-size: 0.7rem; color: var(--gray-text);">1 USD = <span id="currentVesRate">0.00</span> VES</p>
+                    </div>
+
+                    <div class="config-group">
+                        <label>📲 Pago Móvil:</label>
+                        <label>Teléfono PM:</label>
+                        <input type="text" id="newPmPhone" placeholder="04127361708" maxlength="11">
+                        <label>CI/RIF:</label>
+                        <input type="text" id="newPmCif" placeholder="V13937768" maxlength="12">
+                        <label>Banco:</label>
+                        <select id="newPmBankCode">
+                            <option value="0102">0102 - Venezuela</option>
+                            <option value="0105">0105 - Mercantil</option>
+                            <option value="0108">0108 - Provincial</option>
+                            <option value="0115">0115 - Exterior</option>
+                            <option value="0134">0134 - Banesco</option>
+                            <option value="0156">0156 - Industrial</option>
+                            <option value="0163">0163 - Tesoro</option>
+                            <option value="0175">0175 - Bicentenario</option>
+                        </select>
+                    </div>
+
+                    <div class="config-group">
+                        <label>📱 WhatsApp del Negocio:</label>
+                        <input type="text" id="newWhatsappPhone" placeholder="584121234567" maxlength="15">
+                        <p style="font-size: 0.7rem; color: var(--gray-text);">Formato: 584243072017 (sin +)</p>
+                    </div>
+
+                    <div class="config-group">
+                        <label>QR Estático:</label>
+                        <textarea id="newPmStaticQrPayload" rows="2" placeholder="Payload QR banco"></textarea>
+                    </div>
+
+                    <div class="config-group">
+                        <label>💰 Modificadores:</label>
+                        <div>
+                            <label>Descuento (%):</label>
+                            <input type="number" id="newDiscount" min="0" max="99"> <span class="percent-symbol">%</span>
+                        </div>
+                        <div>
+                            <label>Propina (%):</label>
+                            <input type="number" id="newTip" min="0" max="99"> <span class="percent-symbol">%</span>
+                        </div>
+                        <div>
+                            <label>Mora Anual (%):</label>
+                            <input type="number" id="moraPercent" min="0" max="100"> <span class="percent-symbol">%</span>
+                        </div>
+                        <div class="mode-toggle" style="margin-top: 10px;">
+                            <span>Cobro de Mora</span>
+                            <label class="switch">
+                                <input type="checkbox" id="moraEnabledToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Activado</span>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label>🔊 Sonido y Notificaciones:</label>
+                        <div class="mode-toggle">
+                            <span>Sonido</span>
+                            <label class="switch">
+                                <input type="checkbox" id="soundToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Activado</span>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label>Modo:</label>
+                        <div class="mode-toggle">
+                            <span>DEMO</span>
+                            <label class="switch">
+                                <input type="checkbox" id="demoModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span>REAL</span>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label>🔐 Cambiar PIN:</label>
+                        <input type="password" id="newPin" maxlength="4" placeholder="••••">
+                        <label>Confirmar:</label>
+                        <input type="password" id="confirmPin" maxlength="4" placeholder="••••">
+                    </div>
+
+                    <div class="config-group">
+                        <label>🪙 Monedas:</label>
+                        <div id="tokenConfigList"></div>
+                    </div>
+
+                    <button class="btn-copy" data-action="save-config">💾 Guardar</button>
+                    <div class="warning-box" id="configWarning" style="display: none; margin-top: 10px;"></div>
+                     <!-- Input file oculto completamente -->
+                      <button class="btn-copy" style="background: var(--danger); margin-top: 10px;" 
+        onclick="handleLogout()">
+  🚪 Cerrar Sesión
+</button>
+
+  <input type="file" id="restoreBackupInput" accept=".json" 
+         onchange="handleBackupRestore(this)"
+         style="position: absolute !important; 
+                width: 0 !important; 
+                height: 0 !important; 
+                opacity: 0 !important; 
+                pointer-events: none !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                overflow: hidden !important; 
+                left: -9999px !important;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal-overlay active">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔒 PIN</div>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--gray-text);">Ingresa el PIN</p>
+                <input type="password" id="pinInput" class="pin-input" maxlength="4" autocomplete="off" placeholder="••••" inputmode="none">
+                <div id="pinKeypad">
+                    <button class="pin-key" data-pin-value="1">1</button>
+                    <button class="pin-key" data-pin-value="2">2</button>
+                    <button class="pin-key" data-pin-value="3">3</button>
+                    <button class="pin-key" data-pin-value="4">4</button>
+                    <button class="pin-key" data-pin-value="5">5</button>
+                    <button class="pin-key" data-pin-value="6">6</button>
+                    <button class="pin-key" data-pin-value="7">7</button>
+                    <button class="pin-key" data-pin-value="8">8</button>
+                    <button class="pin-key" data-pin-value="9">9</button>
+                    <button class="pin-key" style="background: transparent;" disabled></button>
+                    <button class="pin-key" data-pin-value="0">0</button>
+                    <button class="pin-key pin-delete" data-pin-action="delete">⌫</button>
+                </div>
+                <button class="btn-copy" style="margin-top: 15px;" data-action="authenticate">Desbloquear</button>
+                <div class="warning-box" id="pinError" style="display: none; border-left-color: var(--danger); color: var(--danger);">PIN incorrecto</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- Bibliotecas de Seguridad -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+
+
+    <script>
+// ============================================================================
+// PROTECCIÓN: Verificar autenticación con Supabase
+// ============================================================================
+
+async function checkAuth() {
+  const session = await SupabaseAuth.getSession();
+  if (!session) {
+    // No hay sesión, redirigir a login
+    window.location.href = '04_login.html';
+    return false;
+  }
+  console.log('✅ Usuario autenticado:', session.user.email);
+  return true;
+}
+
+// Verificar al cargar la página
+window.addEventListener('DOMContentLoaded', async () => {
+  const isAuth = await checkAuth();
+  if (!isAuth) return; // Sale si no está autenticado
+  
+  // Si está autenticado, continuar con inicialización normal
+  console.log('🚀 Iniciando POS...');
+});
+
+    /**
+     * WEB3 POS v5.1 - Config Fix & Mora Switch
+     * - Restaurado el módulo Settings completo
+     * - Conectado el switch de mora a la lógica de negocio
+     */
+
+    // 1. UTILIDADES Y CONFIGURACIÓN
+    const Utils = {
+        async hashPin(pin) {
+            // MEJORADO: Usar bcrypt con salt rounds = 10
+            const salt = await bcrypt.genSalt(10);
+            return await bcrypt.hash(pin, salt);
+        },
+
+        legacyHashPin(pin) {
+            // Hash antiguo (solo para migración)
+            const salt = 'POS_2025';
+            let hash = 0;
+            const str = pin + salt;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash = hash & hash;
+            }
+            return hash.toString(16);
+        },
+
+        async validatePin(input, storedHash) {
+            // MEJORADO: Compatibilidad con hash antiguo + bcrypt
+            if (storedHash && storedHash.length < 20) {
+                // Hash antiguo detectado
+                const oldHash = this.legacyHashPin(input);
+                if (oldHash === storedHash) {
+                    // Migrar a bcrypt automáticamente
+                    console.log('🔒 Migrando PIN a bcrypt...');
+                    const newHash = await this.hashPin(input);
+                    Config.pinHash = newHash;
+                    Storage.saveConfig('pos-pinhash', newHash);
+                    UI.showToast('PIN actualizado a seguridad mejorada');
+                    return true;
+                }
+                return false;
+            }
+            // Usar bcrypt para validación
+            return await bcrypt.compare(input, storedHash);
+        },
+
+        generateUniqueId() {
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        },
+
+        formatNumber(num, locale = 'es-VE', decimals = 2) {
+            return parseFloat(num).toLocaleString(locale, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        },
+
+        formatCurrency(amount, currency = 'USD') {
+            return this.formatNumber(amount, currency === 'VES' ? 'es-VE' : 'en-US');
+        },
+
+        async copyToClipboard(text, msg = 'Copiado') {
+            try {
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                UI.showToast(`✅ ${msg}`);
+            } catch (e) {
+                UI.showToast('❌ Error al copiar');
+            }
+        },
+
+        vibrate(duration = 10) {
+            if (navigator.vibrate) navigator.vibrate(duration);
+        },
+
+        dataURLtoFile(dataurl, filename) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, {type:mime});
+        }
+    };
+
+    
+// ============================================
+// SEGURIDAD: Sistema de Cifrado para LocalStorage
+// ============================================
+const SecureStorage = {
+    encryptionKey: 'WEB3POS-2025-' + (localStorage.getItem('device-uuid') || (() => {
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        localStorage.setItem('device-uuid', uuid);
+        return uuid;
+    })()),
+
+    setItem(key, value) {
+        try {
+            const encrypted = CryptoJS.AES.encrypt(
+                JSON.stringify(value), 
+                this.encryptionKey
+            ).toString();
+            localStorage.setItem(key, encrypted);
+            return true;
+        } catch (e) {
+            console.error('Error cifrando:', e);
+            return false;
+        }
+    },
+
+    getItem(key, defaultValue = null) {
+        try {
+            const encrypted = localStorage.getItem(key);
+            if (!encrypted) return defaultValue;
+            const decrypted = CryptoJS.AES.decrypt(encrypted, this.encryptionKey);
+            const str = decrypted.toString(CryptoJS.enc.Utf8);
+            return str ? JSON.parse(str) : defaultValue;
+        } catch (e) {
+            console.warn('Error descifrando:', e);
+            return defaultValue;
+        }
+    },
+
+    removeItem(key) {
+        localStorage.removeItem(key);
+    }
+};
+
+const Storage = {
+        getTransactions() {
+    return SecureStorage.getItem('transactions', []);
+  },
+
+                async saveTransaction(tx) {
+          const supabaseTx = {
+            transaction_id: tx.transactionId,
+            amount: tx.amount,
+            amount_usd: tx.amount,
+            final_amount_ves: tx.finalAmountVES || Calculations.toVES(tx.amount),
+            payment_method: tx.token || 'CASH',
+            token: tx.token || 'USD',
+            tx_hash: tx.txHash,
+            status: tx.status || 'confirmed',
+            mora_applied: tx.moraApplied || false,
+            mora_days: tx.moraDays || 0,
+            mora_amount_ves: tx.moraAmountVES || 0
+          };
+
+          const result = await SupabaseTransactions.create(supabaseTx);
+          
+          if (result.success) {
+            console.log('✅ Transacción guardada en Supabase');
+            let txs = SecureStorage.getItem('transactions', []);
+            txs.unshift(tx);
+            if (txs.length > 100) txs = txs.slice(0, 100);
+            SecureStorage.setItem('transactions', txs);
+            UI.updateStats();
+          } else {
+            console.error('❌ Error:', result.error);
+            UI.showToast('Error guardando venta');
+          }
+        },
+
+
+        deleteTransaction(txId) {
+             let txs = this.getTransactions();
+             const initialLength = txs.length;
+             txs = txs.filter(tx => tx.transactionId !== txId);
+             
+             if (txs.length < initialLength) {
+                 SecureStorage.setItem('transactions', txs);
+                 UI.updateStats(); // Importante: Recalcular totales
+                 return true;
+             }
+             return false;
+        },
+
+        getPendingTransactions() {
+    const txs = SecureStorage.getItem('pending-transactions', []);
+    return txs.sort((a, b) => a.timestamp - b.timestamp);
+  },
+
+        savePendingTransaction(tx) {
+    const txs = this.getPendingTransactions().filter(t => t.transactionId !== tx.transactionId);
+    txs.push(tx);
+    SecureStorage.setItem('pending-transactions', txs);
+  },
+
+        removePendingTransaction(id) {
+    const txs = this.getPendingTransactions().filter(t => t.transactionId !== id);
+    SecureStorage.setItem('pending-transactions', txs);
+  },
+
+        saveConfig(key, value) {
+            localStorage.setItem(key, typeof value === 'object' ? JSON.stringify(value) : value);
+        },
+
+        getConfig(key, def) {
+            const v = localStorage.getItem(key);
+            if (v === null) return def;
+            try { return JSON.parse(v); } catch { return v; }
+        }
+    };
+
+    
+// ============================================
+// TASA AUTOMÁTICA: Actualización desde API Venezuela
+// ============================================
+const RateUpdater = {
+  lastUpdate: 0,
+  updateInterval: 3600000, // 1 hora
+  timeout: 8000, // 8 segundos timeout por API
+
+  // APIs en orden de prioridad
+  apis: [
+    {
+      name: 'ExchangeRate-API',
+      url: 'https://api.exchangerate-api.com/v4/latest/USD',
+      parser: (data) => data?.rates?.VES
+    },
+    {
+      name: 'pyDolarVenezuela',
+      url: 'https://pydolarvenezuela-api.vercel.app/api/v1/dollar?monitor=bcv',
+      parser: (data) => data?.monitors?.bcv?.price
+    },
+    {
+      name: 'DolarSi',
+      url: 'https://s3.amazonaws.com/dolar.wilsonperez.ve/api.json',
+      parser: (data) => data?.bcv?.rate
+    },
+    {
+      name: 'BCV-API',
+      url: 'https://bcv-api.vercel.app/api/v1/rate',
+      parser: (data) => data?.rate
+    },
+    {
+      name: 'DolarToday',
+      url: 'https://s3.amazonaws.com/dolartoday/data.json',
+      parser: (data) => data?.USD?.promedio || data?.USD?.promedioreal
+    }
+  ],
+
+  // Validar que la tasa sea razonable
+  isValidRate(rate) {
+    return rate && rate > 0 && rate < 1000; // VES/USD entre 0 y 1000
+  },
+
+  // Fetch con timeout
+  async fetchWithTimeout(url, timeout) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, { 
+        signal: controller.signal,
+        cache: 'no-cache'
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  },
+
+  // Intentar actualizar desde una API específica
+  async tryAPI(api) {
+    try {
+      console.log(`🔄 Intentando ${api.name}...`);
+      const data = await this.fetchWithTimeout(api.url, this.timeout);
+      const rate = api.parser(data);
+
+      if (this.isValidRate(rate)) {
+        console.log(`✅ ${api.name}: ${rate} VES/USD`);
+        return parseFloat(rate);
+      }
+      throw new Error('Tasa inválida');
+    } catch (error) {
+      console.warn(`❌ ${api.name} falló:`, error.message);
+      return null;
+    }
+  },
+
+  // Actualizar tasa intentando todas las APIs
+  async updateVesRate() {
+    UI.showToast('🔄 Actualizando tasa USD/VES...');
+
+    // Intentar cada API en orden
+    for (const api of this.apis) {
+      const newRate = await this.tryAPI(api);
+
+      if (newRate) {
+        const oldRate = Config.vesRate;
+        Config.vesRate = newRate;
+        Config.save();
+
+        const change = oldRate > 0 ? ((newRate - oldRate) / oldRate * 100).toFixed(2) : 0;
+        const changeSymbol = change > 0 ? '📈' : (change < 0 ? '📉' : '➡️');
+
+        UI.showToast(`✅ Tasa actualizada: ${Utils.formatNumber(newRate)} VES/USD (${api.name})`);
+        UI.updateStats();
+
+        this.lastUpdate = Date.now();
+        Storage.saveConfig('last-rate-update', this.lastUpdate);
+        Storage.saveConfig('last-valid-rate', newRate); // Guardar como respaldo
+
+        // Actualizar display
+        const el = document.getElementById('currentVesRate');
+        if (el) el.textContent = Utils.formatNumber(newRate);
+
+        return true;
+      }
+    }
+
+    // Si todas fallaron, intentar usar caché
+    const cachedRate = Storage.getConfig('last-valid-rate', null);
+    if (cachedRate && this.isValidRate(cachedRate)) {
+      UI.showToast(`⚠️ APIs no disponibles. Usando última tasa conocida: ${Utils.formatNumber(cachedRate)} VES/USD`);
+
+      // Aplicar tasa del caché si es diferente
+      if (Config.vesRate !== cachedRate) {
+        Config.vesRate = cachedRate;
+        Config.save();
+        UI.updateStats();
+      }
+
+      return false;
+    }
+
+    UI.showToast('❌ No se pudo actualizar. Verifica tu conexión.');
+    return false;
+  },
+
+  // Auto-actualización cada hora
+  async autoUpdate() {
+    // Actualizar si pasó más de 1 hora
+    const lastUpdate = Storage.getConfig('last-rate-update', 0);
+    if (Date.now() - lastUpdate > this.updateInterval) {
+      await this.updateVesRate();
+    }
+
+    // Programar siguiente actualización
+    setInterval(() => this.updateVesRate(), this.updateInterval);
+  },
+
+  // Forzar actualización manual
+  forceUpdate() {
+    return this.updateVesRate();
+  }
+};
+
+const Config = {
+        defaults: {
+            pin: '1234', discount: 10, tip: 15, vesRate: 50.00,
+            pmPhone: '04127361708', pmCif: 'V13937768', pmBankCode: '0134',
+            pmStaticQrPayload: '', moraPercent: 3, demoMode: true,
+            sessionTimeout: 30, businessName: 'Mi Negocio', whatsappPhone: '',
+            soundEnabled: true,
+            moraEnabled: true // Nuevo Default
+        },
+
+        defaultTokens: {
+            USDT: { symbol: 'USDT', name: 'Tether', network: 'BNB Smart Chain', chainId: 56, decimals: 18, active: true, address: '0x55d398326f99059fF775485246999027B3197955', walletAddress: '' },
+            USDC: { symbol: 'USDC', name: 'USD Coin', network: 'BNB Smart Chain', chainId: 56, decimals: 18, active: true, address: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', walletAddress: '' },
+            BUSD: { symbol: 'BUSD', name: 'Binance USD', network: 'BNB Smart Chain', chainId: 56, decimals: 18, active: false, address: '0xe9e7cea3dedca5984780bafc599bd69add087d56', walletAddress: '' }
+        },
+
+        bankCodes: {
+            '0102': 'Venezuela', '0105': 'Mercantil', '0108': 'Provincial',
+            '0115': 'Exterior', '0134': 'Banesco', '0156': 'Industrial',
+            '0163': 'Tesoro', '0175': 'Bicentenario'
+        },
+
+        load() {
+            this.pinHash = Storage.getConfig('pos_pin_hash', Utils.hashPin(this.defaults.pin));
+            this.discountPercentage = parseInt(Storage.getConfig('discount_percent', this.defaults.discount));
+            this.tipPercentage = parseInt(Storage.getConfig('tip_percent', this.defaults.tip));
+            this.vesRate = parseFloat(Storage.getConfig('ves_rate', this.defaults.vesRate));
+            this.pmPhone = Storage.getConfig('pm_phone', this.defaults.pmPhone);
+            this.pmCif = Storage.getConfig('pm_cif', this.defaults.pmCif);
+            this.pmBankCode = Storage.getConfig('pm_bank_code', this.defaults.pmBankCode);
+            this.pmStaticQrPayload = Storage.getConfig('pm_qr_payload', this.defaults.pmStaticQrPayload);
+            this.moraPercent = parseInt(Storage.getConfig('mora_percent', this.defaults.moraPercent));
+            this.isDemoMode = Storage.getConfig('is_demo_mode', this.defaults.demoMode);
+            this.supportedTokens = Storage.getConfig('supported_tokens', this.defaultTokens);
+            this.businessName = Storage.getConfig('business_name', this.defaults.businessName);
+            this.whatsappPhone = Storage.getConfig('whatsapp_phone', this.defaults.whatsappPhone);
+            this.soundEnabled = Storage.getConfig('sound_enabled', this.defaults.soundEnabled);
+            this.moraEnabled = Storage.getConfig('mora_enabled', this.defaults.moraEnabled);
+        },
+
+        async save() {
+            Storage.saveConfig('discount_percent', this.discountPercentage);
+            Storage.saveConfig('tip_percent', this.tipPercentage);
+            Storage.saveConfig('ves_rate', this.vesRate);
+            Storage.saveConfig('pm_phone', this.pmPhone);
+            Storage.saveConfig('pm_cif', this.pmCif);
+            Storage.saveConfig('pm_bank_code', this.pmBankCode);
+            Storage.saveConfig('pm_qr_payload', this.pmStaticQrPayload);
+            Storage.saveConfig('mora_percent', this.moraPercent);
+            Storage.saveConfig('is_demo_mode', this.isDemoMode);
+            Storage.saveConfig('supported_tokens', this.supportedTokens);
+            Storage.saveConfig('business_name', this.businessName);
+            Storage.saveConfig('whatsapp_phone', this.whatsappPhone);
+            Storage.saveConfig('sound_enabled', this.soundEnabled);
+            Storage.saveConfig('mora_enabled', this.moraEnabled);
+        }
+    };
+
+    // 3. LOGICA Y ESTADO
+    const Calculations = {
+        toUSD(ves) { return parseFloat((ves / Config.vesRate).toFixed(4)); },
+        toVES(usd) { return parseFloat((usd * Config.vesRate).toFixed(2)); },
+        applyDiscount(amt, pct) { return amt * (1 - pct / 100); },
+        applyTip(amt, pct) { return amt * (1 + pct / 100); },
+
+        calculateMora(pendingTx) {
+            if (!Config.moraEnabled) {
+                return { days: 0, amount: 0, total: pendingTx.amountVES, message: "" };
+            }
+
+            const msDay = 86400000;
+            const days = Math.floor((Date.now() - pendingTx.timestamp) / msDay);
+
+            if (days <= 0) return { days: 0, amount: 0, total: pendingTx.amountVES, message: "" };
+
+            const dailyRate = Config.moraPercent / 365 / 100;
+            const moraAmt = pendingTx.amountVES * dailyRate * days;
+            const total = pendingTx.amountVES + moraAmt;
+
+            return {
+                days,
+                amount: parseFloat(moraAmt.toFixed(2)),
+                total: parseFloat(total.toFixed(2)),
+                message: `${days} días de mora (${Config.moraPercent}% anual)`
+            };
+        },
+
+        getTodayStats() {
+            const txs = Storage.getTransactions();
+            const today = new Date().setHours(0, 0, 0, 0);
+
+            const todayTxs = txs.filter(tx => {
+                const txDate = new Date(tx.timestamp).setHours(0, 0, 0, 0);
+                return txDate === today && tx.status === 'confirmed';
+            });
+
+            return {
+                totalAmount: todayTxs.reduce((sum, tx) => sum + tx.amount, 0),
+                count: todayTxs.length
+            };
+        }
+    };
+
+    const POSState = {
+        currentValue: '0',
+        baseCurrency: Storage.getConfig('base_currency', 'USD'),
+        currentCrypto: 'USDT',
+        currentTransactionId: '',
+        pmAmountToConfirm: 0,
+        pmAmountUSD: 0,
+        isDiscountApplied: false,
+        isTipApplied: false,
+        qrCodeInstance: null,
+        html5QrcodeScanner: null,
+        monitoringTimeout: null,
+        sessionStart: null,
+        lastActivity: null,
+
+        resetModifiers() {
+            this.isDiscountApplied = false;
+            this.isTipApplied = false;
+            const dd = document.getElementById('discountDisplay');
+            if (dd) dd.style.display = 'none';
+        },
+
+        clear() {
+            this.currentValue = '0';
+            this.resetModifiers();
+            UI.updateDisplay();
+        }
+    };
+
+    const NotificationManager = {
+        permission: Notification.permission,
+
+        async requestPermission() {
+            if (!("Notification" in window)) {
+                console.warn("Notificaciones no soportadas");
+                return false;
+            }
+            if (this.permission !== 'granted') {
+                this.permission = await Notification.requestPermission();
+            }
+            return this.permission === 'granted';
+        },
+
+        playConfirmationSound() {
+            if (!Config.soundEnabled) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioCtx();
+                const notes = [523.25, 659.25, 783.99]; // Do-Mi-Sol
+                notes.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.2);
+                    }, index * 150);
+                });
+            } catch (e) {
+                console.log('Audio no disponible');
+            }
+        },
+
+        vibrateConfirmation() {
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+        },
+
+        notifyPendingPayment(transactionId, amountVES) {
+            if (this.permission !== 'granted') return;
+            new Notification('⏳ Pago Móvil Pendiente', {
+                body: `ID: ${transactionId}\nMonto: ${Utils.formatCurrency(amountVES, 'VES')} VES\nEsperando confirmación.`,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏳</text></svg>',
+                tag: transactionId,
+                requireInteraction: false
+            });
+        },
+
+        notifyPaymentConfirmed(transactionId, amountVES, amountUSD) {
+            this.playConfirmationSound();
+            this.vibrateConfirmation();
+            if (this.permission !== 'granted') return;
+            new Notification('✅ ¡Pago Confirmado!', {
+                body: `ID: ${transactionId}\n${Utils.formatCurrency(amountVES, 'VES')} VES (~$${Utils.formatCurrency(amountUSD, 'USD')} USD)\n¡Transacción exitosa!`,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✅</text></svg>',
+                tag: transactionId,
+                requireInteraction: true
+            });
+        },
+
+        notifyMoraAlert(transactionId, days, totalAmount) {
+            if (this.permission !== 'granted') return;
+            new Notification('⚠️ Alerta de Mora', {
+                body: `ID: ${transactionId}\n${days} día(s) de mora\nTotal: ${Utils.formatNumber(totalAmount)} VES`,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚠️</text></svg>',
+                tag: `mora-${transactionId}`,
+                requireInteraction: true
+            });
+        },
+
+        toggleSound() {
+            Config.soundEnabled = !Config.soundEnabled;
+            Storage.saveConfig('sound_enabled', Config.soundEnabled);
+            return Config.soundEnabled;
+        }
+    };
+    
+    const UI = {
+        elements: {},
+
+        cacheElements() {
+            ['display', 'currencyLabel', 'secondaryDisplay', 'discountDisplay',
+             'rateDisplay', 'sessionIndicator', 'tokenSymbolDisplay',
+             'discountPercent', 'tipPercent', 'pinInput', 'toast',
+             'historyContent', 'pendingTxsList', 'configWarning', 'pinError',
+             'qrFileInput'
+            ].forEach(id => this.elements[id] = document.getElementById(id));
+        },
+
+        showToast(msg, duration = 3000) {
+            const t = this.elements.toast || document.getElementById('toast');
+            if (t) {
+                t.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), duration);
+            }
+        },
+
+        openModal(id) {
+            const m = document.getElementById(id);
+            if (m) {
+                m.classList.add('active');
+                const first = m.querySelector('button, input, select, textarea');
+                if (first) first.focus();
+            }
+        },
+
+        closeModal(id) {
+            const m = document.getElementById(id);
+            if (m) {
+                m.classList.remove('active');
+                if (id === 'cryptoPaymentModal') {
+                    const banner = document.getElementById('statusBanner');
+                    if (banner) banner.className = 'status-banner';
+                    clearTimeout(POSState.monitoringTimeout);
+                }
+                if (id === 'pmConfirmModal' && POSState.html5QrcodeScanner) {
+                    Conciliation.stopScanner();
+                }
+            }
+        },
+
+        updateDisplay() {
+            const s = POSState;
+            if (!s.currentValue) s.currentValue = '0';
+
+            const [int, dec] = s.currentValue.split('.');
+            if (dec && dec.length > 2) s.currentValue = int + '.' + dec.substring(0, 2);
+            if (s.currentValue === '.') s.currentValue = '0.';
+            if (s.currentValue.length > 1 && s.currentValue.startsWith('0') && s.currentValue[1] !== '.') {
+                s.currentValue = s.currentValue.substring(1);
+            }
+
+            const val = parseFloat(s.currentValue || 0);
+            const dispEl = this.elements.display;
+            const secEl = this.elements.secondaryDisplay;
+            const rateEl = this.elements.rateDisplay;
+            const currEl = this.elements.currencyLabel;
+
+            if (s.baseCurrency === 'VES') {
+                dispEl.textContent = Utils.formatCurrency(val, 'VES');
+                secEl.textContent = `~ $${Utils.formatCurrency(Calculations.toUSD(val), 'USD')} USD`;
+            } else {
+                dispEl.textContent = Utils.formatCurrency(val, 'USD');
+                secEl.textContent = `~ ${Utils.formatCurrency(Calculations.toVES(val), 'VES')} VES`;
+            }
+
+            currEl.textContent = s.baseCurrency;
+            rateEl.textContent = `1 USD = ${Utils.formatNumber(Config.vesRate)} VES`;
+        },
+
+        updateStats() {
+            const de = this.elements.discountPercent;
+            const te = this.elements.tipPercent;
+            if (de) de.textContent = Config.discountPercentage;
+            if (te) te.textContent = Config.tipPercentage;
+            this.updateDisplay();
+        },
+
+        updateSessionIndicator() {
+            const el = this.elements.sessionIndicator;
+            if (el && POSState.sessionStart) {
+                const min = Math.floor((Date.now() - POSState.sessionStart) / 60000);
+                el.textContent = `Sesión: ${min}min`;
+            }
+        }
+    };
+
+    const Auth = {
+        handlePinKey(key) {
+            const input = document.getElementById('pinInput');
+            let current = input.value;
+            Utils.vibrate(10);
+
+            if (key === 'delete') input.value = current.slice(0, -1);
+            else if (key >= '0' && key <= '9' && current.length < 4) input.value = current + key;
+
+            if (input.value.length === 4) this.authenticate();
+        },
+
+        authenticate() {
+            const input = document.getElementById('pinInput');
+            const errorDiv = document.getElementById('pinError');
+
+            if (Utils.validatePin(input.value, Config.pinHash)) {
+                
+                // Limpia el input y el error antes de cerrar el modal
+                input.value = '';
+                errorDiv.style.display = 'none';
+
+                UI.closeModal('authModal');
+                
+                // Establece el estado de sesión y actividad
+                POSState.sessionStart = Date.now();
+                POSState.lastActivity = Date.now();
+                
+                UI.showToast('✅ Sesión iniciada');
+            } else {
+                errorDiv.style.display = 'block';
+                input.value = '';
+                Utils.vibrate(100);
+                UI.showToast('❌ PIN incorrecto');
+            }
+        },
+
+        checkSessionTimeout() {
+            if (!POSState.sessionStart) return;
+            const inactiveMin = (Date.now() - POSState.lastActivity) / 60000;
+            if (inactiveMin >= Config.defaults.sessionTimeout) this.lockSession();
+        },
+
+        lockSession() {
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinError').style.display = 'none';
+            UI.openModal('authModal');
+            UI.showToast('🔒 Sesión bloqueada');
+            POSState.sessionStart = null;
+        },
+
+        registerActivity() {
+            POSState.lastActivity = Date.now();
+        }
+    };
+
+    // 4. MÓDULOS DE NEGOCIO
+    const QRGenerator = {
+        generateCryptoQR(amountUSD, tokenConfig) {
+            const container = document.getElementById('qrcode');
+            container.innerHTML = '';
+
+            const decimals = tokenConfig.chainId ? tokenConfig.decimals : 2;
+            const amtCrypto = amountUSD.toFixed(decimals);
+            const note = POSState.currentTransactionId ? `&message=ID${POSState.currentTransactionId}` : '';
+
+            let uri = tokenConfig.walletAddress;
+            if (tokenConfig.chainId) {
+                uri = `ethereum:${tokenConfig.address}@${tokenConfig.chainId}/transfer?address=${tokenConfig.walletAddress}&uint256=${amtCrypto}${note}`;
+            }
+
+            document.getElementById('cryptoAmount').textContent = `${Utils.formatCurrency(amountUSD, 'USD')} USD`;
+            document.getElementById('networkLabel').textContent = tokenConfig.network;
+            document.getElementById('walletAddressDisplay').textContent = tokenConfig.walletAddress;
+            document.getElementById('paymentModalToken').textContent = tokenConfig.symbol;
+            document.getElementById('scanNetworkName').textContent = tokenConfig.network;
+
+            this.renderQR(container, uri);
+        },
+
+        generatePMQR() {
+            const container = document.getElementById('pmStaticQrContainer');
+            container.innerHTML = '';
+
+            if (!Config.pmStaticQrPayload) {
+                container.innerHTML = '<div class="warning-box" style="margin:0; border-left-color: var(--danger); color: var(--danger);">❌ Configura QR en Ajustes</div>';
+                return;
+            }
+
+            this.renderQR(container, Config.pmStaticQrPayload);
+        },
+
+        generateRequestQR(txId, amount) {
+            const container = document.getElementById('pmRequestQrContainer');
+            if (container) {
+                container.innerHTML = '';
+                const payload = `WEB3POS:VERIFY:${txId}:${amount}`;
+                this.renderQR(container, payload, 150, 150);
+            }
+        },
+
+        renderQR(container, data, w = 200, h = 200) {
+            if (typeof QRCode === 'undefined') {
+                container.innerHTML = '<div class="warning-box" style="margin:0; color: var(--danger);">❌ Librería QR no cargada</div>';
+                return null;
+            }
+
+            try {
+                if (POSState.qrCodeInstance && container.id === 'qrcode') POSState.qrCodeInstance.clear();
+                
+                const qr = new QRCode(container, {
+                    text: data, width: w, height: h,
+                    colorDark: "#000000", colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                if (container.id === 'qrcode') POSState.qrCodeInstance = qr;
+                return qr;
+            } catch (e) {
+                console.error('Error QR:', e);
+                return null;
+            }
+        }
+    };
+
+    const Payments = {
+        handleSelection() {
+            const authModal = document.getElementById('authModal');
+            if (authModal && authModal.classList.contains('active') && POSState.sessionStart) {
+                authModal.classList.remove('active');
+            }
+            if (document.getElementById('authModal').classList.contains('active')) return;
+
+            const displayAmt = parseFloat(POSState.currentValue);
+            if (displayAmt <= 0 || isNaN(displayAmt)) {
+                UI.showToast('⚠️ Ingresa un monto');
+                return;
+            }
+
+            Utils.vibrate(10);
+            POSState.currentTransactionId = Utils.generateUniqueId();
+
+            const amountUSD = POSState.baseCurrency === 'VES' 
+                ? Calculations.toUSD(displayAmt) 
+                : displayAmt;
+            const amountVES = Calculations.toVES(amountUSD);
+
+            POSState.pmAmountToConfirm = amountVES;
+            POSState.pmAmountUSD = amountUSD;
+
+            document.getElementById('finalPaymentAmountVES').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
+
+            Storage.savePendingTransaction({
+                transactionId: POSState.currentTransactionId,
+                amountVES: POSState.pmAmountToConfirm,
+                amountUSD: POSState.pmAmountUSD,
+                timestamp: Date.now()
+            });
+
+            NotificationManager.notifyPendingPayment(POSState.currentTransactionId, amountVES);
+
+            document.getElementById('pmUniqueIdDisplay').textContent = POSState.currentTransactionId;
+            document.getElementById('pmStaticUniqueIdDisplay').textContent = POSState.currentTransactionId;
+
+            UI.openModal('paymentSelectionModal');
+        },
+
+        openCrypto() {
+            const displayAmt = parseFloat(POSState.currentValue);
+            const amountUSD = POSState.baseCurrency === 'VES' 
+                ? Calculations.toUSD(displayAmt) 
+                : displayAmt;
+
+            UI.closeModal('paymentSelectionModal');
+            Storage.removePendingTransaction(POSState.currentTransactionId);
+
+            const tokenConfig = Config.supportedTokens[POSState.currentCrypto];
+            QRGenerator.generateCryptoQR(amountUSD, tokenConfig);
+            this.startMonitoring(amountUSD, tokenConfig);
+
+            POSState.clear();
+            UI.openModal('cryptoPaymentModal');
+        },
+
+        openPagoMovil() {
+            UI.closeModal('paymentSelectionModal');
+
+            const amountVES = POSState.pmAmountToConfirm;
+            document.getElementById('pmAmountDisplay').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
+            document.getElementById('pmCifDisplay').textContent = Config.pmCif;
+            document.getElementById('pmPhoneDisplay').textContent = Config.pmPhone;
+            document.getElementById('pmBankDisplay').textContent = `${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})`;
+
+            // CORRECCIÓN CRÍTICA: Abrir modal PRIMERO para asegurar dimensiones
+            POSState.clear();
+            UI.openModal('pagoMovilModal');
+
+            // Generar QR con ligero retardo para asegurar renderizado en contenedor visible
+            setTimeout(() => {
+                QRGenerator.generateRequestQR(POSState.currentTransactionId, amountVES);
+            }, 100);
+        },
+
+        openPMStaticQR() {
+            UI.closeModal('paymentSelectionModal');
+
+            const amountVES = POSState.pmAmountToConfirm;
+            document.getElementById('pmStaticAmountDisplay').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
+            document.getElementById('pmStaticCifDisplay').textContent = Config.pmCif;
+            document.getElementById('pmStaticPhoneDisplay').textContent = Config.pmPhone;
+            document.getElementById('pmStaticBankDisplay').textContent = `${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})`;
+            document.getElementById('pmStaticRateDisplay').textContent = `1 USD = ${Utils.formatNumber(Config.vesRate)} VES`;
+
+            QRGenerator.generatePMQR();
+            POSState.clear();
+            UI.openModal('pmStaticQrModal');
+        },
+
+        sendPMWhatsApp() {
+            WhatsAppManager.sendPaymentRequest(
+                POSState.currentTransactionId,
+                POSState.pmAmountToConfirm,
+                POSState.pmAmountUSD
+            );
+        },
+
+        startMonitoring(amountUSD, tokenConfig) {
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'status-banner waiting';
+            banner.innerHTML = '⏳ Esperando confirmación...';
+
+            if (Config.isDemoMode) {
+                POSState.monitoringTimeout = setTimeout(() => {
+                    this.confirmPayment(amountUSD, tokenConfig, 'DEMO_TX_' + Date.now());
+                }, 8000);
+            }
+        },
+
+        confirmPayment(amountUSD, tokenConfig, txHash) {
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'status-banner confirmed';
+            banner.innerHTML = '✅ ¡Pago confirmado!';
+
+            const amountVES = Calculations.toVES(amountUSD);
+
+            Storage.saveTransaction({
+                amount: amountUSD,
+                txHash: txHash,
+                timestamp: Date.now(),
+                status: 'confirmed',
+                token: tokenConfig.symbol,
+                baseCurrency: 'USD',
+                transactionId: POSState.currentTransactionId,
+                finalAmountVES: amountVES
+            });
+
+            NotificationManager.notifyPaymentConfirmed(POSState.currentTransactionId, amountVES, amountUSD);
+
+            UI.showToast(`🎉 Pago de $${Utils.formatCurrency(amountUSD)} confirmado!`);
+
+            setTimeout(() => UI.closeModal('cryptoPaymentModal'), 3000);
+        }
+    };
+    
+    const WhatsAppManager = {
+        openWhatsApp(message, phone = null) {
+            const encoded = encodeURIComponent(message);
+            const url = phone 
+                ? `https://wa.me/${phone}?text=${encoded}`
+                : `https://api.whatsapp.com/send?text=${encoded}`;
+            window.open(url, '_blank');
+        },
+
+        sendPaymentRequest(transactionId, amountVES, amountUSD) {
+            const msg = `
+🏪 *${Config.businessName}*
+━━━━━━━━━━━━━━━━━━━
+📝 *SOLICITUD DE PAGO MÓVIL*
+
+🆔 *ID:* ${transactionId}
+💵 *Monto:* ${Utils.formatCurrency(amountVES, 'VES')} VES
+💱 *(~$${Utils.formatCurrency(amountUSD, 'USD')} USD)*
+
+*📋 DATOS:*
+🏦 ${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})
+👤 ${Config.pmCif}
+📱 ${Config.pmPhone}
+
+*📌 INSTRUCCIONES:*
+1️⃣ Realiza la transferencia.
+2️⃣ 📷 **IMPORTANTE:** A continuación recibirás una **IMAGEN QR**.
+3️⃣ Reenvía esa imagen junto con tu comprobante para validar el pago.
+
+⚠️ *El QR es indispensable para la conciliación rápida.*
+━━━━━━━━━━━━━━━━━━━
+`.trim();
+
+            this.openWhatsApp(msg, null);
+            UI.showToast('✅ Selecciona contacto');
+        },
+
+        sendReceipt(transactionId, amountVES, amountUSD, reference, moraDays = 0, moraAmountVES = 0) {
+            let moraNote = moraDays > 0 
+                ? `\n⚠️ Mora aplicada: ${Utils.formatNumber(moraAmountVES)} VES (${moraDays} días)` 
+                : '';
+
+            const msg = `
+✅ *RECIBO DIGITAL*
+━━━━━━━━━━━━━━━━━━━
+🏪 ${Config.businessName}
+
+🆔 *ID:* ${transactionId}
+💵 *Pagado:* ${Utils.formatCurrency(amountVES, 'VES')} VES
+💱 *~$${Utils.formatCurrency(amountUSD, 'USD')} USD*
+🏦 Pago Móvil
+🔢 *Ref:* ${reference}
+📅 ${new Date().toLocaleString('es-VE')}
+⚙️ Tasa: 1 USD = ${Utils.formatNumber(Config.vesRate)} VES${moraNote}
+
+*✨ ¡Gracias por tu compra!*
+━━━━━━━━━━━━━━━━━━━
+`.trim();
+
+            this.openWhatsApp(msg, null);
+            UI.showToast('✅ Enviando recibo');
+        },
+
+        sendReminder(transactionId, amountVES, moraData) {
+            let moraSection = moraData.days > 0 
+                ? `
+⚠️ *MORA:* ${moraData.days} día(s)
+
+💵 Original: ${Utils.formatCurrency(amountVES, 'VES')} VES
+➕ Interés: ${Utils.formatNumber(moraData.amount)} VES
+━━━━━━━━━━━━━━━━━━━
+💰 *TOTAL:* ${Utils.formatNumber(moraData.total)} VES
+` : `
+💵 *Pendiente:* ${Utils.formatCurrency(amountVES, 'VES')} VES
+`;
+
+            const msg = `
+🔔 *RECORDATORIO DE PAGO*
+━━━━━━━━━━━━━━━━━━━
+Hola 👋
+
+Tienes un pago pendiente:
+
+🆔 *ID:* ${transactionId}
+${moraSection}
+
+*📋 DATOS PAGO MÓVIL:*
+🏦 ${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})
+👤 ${Config.pmCif}
+📱 ${Config.pmPhone}
+
+Responde: *${transactionId} XXXXXX*
+━━━━━━━━━━━━━━━━━━━
+`.trim();
+
+            this.openWhatsApp(msg, null);
+            UI.showToast('✅ Enviando recordatorio');
+        },
+
+        shareDailyReport() {
+            const txs = Storage.getTransactions();
+            const today = new Date().setHours(0, 0, 0, 0);
+
+            const todayTxs = txs.filter(tx => {
+                const txDate = new Date(tx.timestamp).setHours(0, 0, 0, 0);
+                return txDate === today && tx.status === 'confirmed';
+            });
+
+            if (todayTxs.length === 0) {
+                UI.showToast('⚠️ No hay ventas hoy');
+                return;
+            }
+
+            const totalVES = todayTxs.reduce((sum, tx) => sum + (tx.finalAmountVES || Calculations.toVES(tx.amount)), 0);
+            const totalUSD = todayTxs.reduce((sum, tx) => sum + tx.amount, 0);
+
+            let detalle = '';
+            todayTxs.forEach((tx, i) => {
+                const hora = new Date(tx.timestamp).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+                const monto = tx.finalAmountVES || Calculations.toVES(tx.amount);
+                detalle += `${i + 1}. ${tx.transactionId} - ${Utils.formatNumber(monto)} VES (${hora})\n`;
+            });
+
+            const msg = `
+📊 *REPORTE DE VENTAS*
+━━━━━━━━━━━━━━━━━━━
+📅 ${new Date().toLocaleDateString('es-VE')}
+🏪 ${Config.businessName}
+
+*RESUMEN:*
+🧾 Ventas: ${todayTxs.length}
+💵 Total VES: ${Utils.formatNumber(totalVES)} VES
+💱 Total USD: ~$${Utils.formatCurrency(totalUSD, 'USD')}
+
+*DETALLE:*
+${detalle}
+━━━━━━━━━━━━━━━━━━━
+POS Web3
+`.trim();
+
+            this.openWhatsApp(msg, Config.whatsappPhone || null);
+            UI.showToast('✅ Compartiendo reporte');
+        },
+
+        getQuickPasteData(amountVES) {
+            return `${Config.pmCif}|${Config.pmPhone}|${Config.pmBankCode}|${amountVES.toFixed(2)}`;
+        },
+
+        async shareQrImage() {
+            const container = document.getElementById('pmRequestQrContainer');
+            // FIX: Buscar canvas (generado por qrcode.js) o img
+            const canvas = container.querySelector('canvas');
+            const img = container.querySelector('img');
+            
+            let dataUrl = '';
+            
+            if (canvas) {
+                dataUrl = canvas.toDataURL('image/png');
+            } else if (img && img.src) {
+                dataUrl = img.src;
+            }
+            
+            if (!dataUrl) {
+                UI.showToast('❌ Error: QR no renderizado aún');
+                return;
+            }
+            
+            // FILENAME FIX: Usar el ID del pedido
+            const filename = `PEDIDO_${POSState.currentTransactionId}.png`;
+            
+            try {
+                const file = Utils.dataURLtoFile(dataUrl, filename);
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'QR de Pago',
+                        text: `Escanea para pagar el pedido ${POSState.currentTransactionId}`
+                    });
+                    UI.showToast('✅ Abriendo compartir...');
+                } else {
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    UI.showToast('⬇️ QR Descargado (Adjúntalo en WhatsApp)');
+                }
+            } catch (error) {
+                console.error('Error compartiendo:', error);
+                UI.showToast('❌ Error al compartir');
+            }
+        },
+
+        downloadQrImage() {
+            const container = document.getElementById('pmRequestQrContainer');
+            const canvas = container.querySelector('canvas');
+            const img = container.querySelector('img');
+            
+            let dataUrl = '';
+            
+            if (canvas) {
+                dataUrl = canvas.toDataURL('image/png');
+            } else if (img && img.src) {
+                dataUrl = img.src;
+            }
+            
+            if (!dataUrl) {
+                UI.showToast('❌ Error: QR no renderizado aún');
+                return;
+            }
+            
+            const filename = `PEDIDO_${POSState.currentTransactionId}.png`;
+            
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            UI.showToast('⬇️ Imagen descargada');
+        }
+    };
+
+    const Settings = {
+        open() {
+            document.getElementById('historyView').style.display = 'none';
+            document.getElementById('configView').style.display = 'block';
+            document.getElementById('historyModal').querySelector('.modal-title').textContent = '⚙️ Config';
+
+            document.getElementById('newBusinessName').value = Config.businessName;
+            document.getElementById('newVesRate').value = Config.vesRate;
+            document.getElementById('currentVesRate').textContent = Utils.formatNumber(Config.vesRate);
+            document.getElementById('newPmPhone').value = Config.pmPhone;
+            document.getElementById('newPmCif').value = Config.pmCif;
+            document.getElementById('newPmBankCode').value = Config.pmBankCode;
+            document.getElementById('newWhatsappPhone').value = Config.whatsappPhone;
+            document.getElementById('newPmStaticQrPayload').value = Config.pmStaticQrPayload;
+            document.getElementById('newDiscount').value = Config.discountPercentage;
+            document.getElementById('newTip').value = Config.tipPercentage;
+            document.getElementById('moraPercent').value = Config.moraPercent;
+            
+            // Toggles
+            document.getElementById('demoModeToggle').checked = !Config.isDemoMode;
+            document.getElementById('soundToggle').checked = Config.soundEnabled;
+            document.getElementById('moraEnabledToggle').checked = Config.moraEnabled; // Configuración de Mora
+
+            this.renderTokenConfig();
+        },
+
+        renderTokenConfig() {
+            const container = document.getElementById('tokenConfigList');
+            let html = '';
+
+            Object.keys(Config.supportedTokens).forEach(symbol => {
+                const token = Config.supportedTokens[symbol];
+                html += `
+                    <div class="token-config-item">
+                        <span class="token-symbol">${symbol}</span>
+                        <input type="text" id="wallet_${symbol}" value="${token.walletAddress || ''}" placeholder="Wallet ${symbol}">
+                        <input type="checkbox" class="token-checkbox" id="active_${symbol}" ${token.active ? 'checked' : ''}>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        },
+
+        async save() {
+            const warningDiv = document.getElementById('configWarning');
+            
+            const newBusinessName = document.getElementById('newBusinessName').value.trim();
+            if (newBusinessName) Config.businessName = newBusinessName;
+            
+            const newVesRate = parseFloat(document.getElementById('newVesRate').value);
+            if (newVesRate && newVesRate > 0) Config.vesRate = newVesRate;
+
+            Config.pmPhone = document.getElementById('newPmPhone').value.trim() || Config.defaults.pmPhone;
+            Config.pmCif = document.getElementById('newPmCif').value.trim() || Config.defaults.pmCif;
+            Config.pmBankCode = document.getElementById('newPmBankCode').value;
+            Config.whatsappPhone = document.getElementById('newWhatsappPhone').value.trim();
+            Config.pmStaticQrPayload = document.getElementById('newPmStaticQrPayload').value.trim();
+
+            const newDiscount = parseInt(document.getElementById('newDiscount').value);
+            const newTip = parseInt(document.getElementById('newTip').value);
+            const newMora = parseInt(document.getElementById('moraPercent').value);
+
+            if (!isNaN(newDiscount)) Config.discountPercentage = newDiscount;
+            if (!isNaN(newTip)) Config.tipPercentage = newTip;
+            if (!isNaN(newMora)) Config.moraPercent = newMora;
+
+            // Toggles
+            Config.isDemoMode = !document.getElementById('demoModeToggle').checked;
+            Config.soundEnabled = document.getElementById('soundToggle').checked;
+            Config.moraEnabled = document.getElementById('moraEnabledToggle').checked; // Guardar estado de Mora
+
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+
+            if (newPin && newPin.length === 4) {
+                if (newPin === confirmPin) {
+                    Config.pinHash = Utils.hashPin(newPin);
+                    Storage.saveConfig('pos_pin_hash', Config.pinHash);
+                    UI.showToast('✅ PIN actualizado');
+                } else {
+                    warningDiv.textContent = '❌ PINs no coinciden';
+                    warningDiv.style.color = 'var(--danger)';
+                    warningDiv.style.display = 'block';
+                    return;
+                }
+            }
+
+            Object.keys(Config.supportedTokens).forEach(symbol => {
+                const walletInput = document.getElementById(`wallet_${symbol}`);
+                const activeInput = document.getElementById(`active_${symbol}`);
+                if (walletInput) Config.supportedTokens[symbol].walletAddress = walletInput.value.trim();
+                if (activeInput) Config.supportedTokens[symbol].active = activeInput.checked;
+            });
+
+            Config.save();
+            UI.updateStats();
+
+            const activeTokens = Object.keys(Config.supportedTokens).filter(k => Config.supportedTokens[k].active);
+            if (!activeTokens.includes(POSState.currentCrypto)) {
+                 POSState.currentCrypto = activeTokens[0] || 'USDT';
+                 document.getElementById('tokenSymbolDisplay').textContent = POSState.currentCrypto;
+            }
+
+            warningDiv.textContent = '✅ Guardado';
+            warningDiv.style.color = 'var(--success)';
+            warningDiv.style.display = 'block';
+            setTimeout(() => warningDiv.style.display = 'none', 2000);
+
+            document.getElementById('newPin').value = '';
+            document.getElementById('confirmPin').value = '';
+
+            UI.showToast('✅ Configuración guardada');
+        }
+    };
+
+    
+// ============================================
+// BACKUP AUTOMÁTICO: Exportación de Datos
+// ============================================
+const BackupManager = {
+  lastBackup: 0,
+  autoBackupInterval: 86400000,
+
+  exportToJSON() {
+    const backup = {
+      version: '5.2-secure',
+      timestamp: Date.now(),
+      date: new Date().toISOString(),
+      businessName: Config.businessName,
+
+      // Datos principales cifrados
+      transactions: Storage.getTransactions(),
+      pendingTransactions: Storage.getPendingTransactions(),
+
+      // ✅ CORREGIDO: Usar SecureStorage en vez de Storage
+      activeCredits: SecureStorage.getItem('credits-active', []),
+      completedCredits: SecureStorage.getItem('credits-completed', []),
+
+      // Configuración (sin PIN)
+      config: {
+        vesRate: Config.vesRate,
+        discountPercentage: Config.discountPercentage,
+        tipPercentage: Config.tipPercentage,
+        moraPercent: Config.moraPercent,
+        moraEnabled: Config.moraEnabled,
+        pmPhone: Config.pmPhone,
+        pmCif: Config.pmCif,
+        pmBankCode: Config.pmBankCode,
+        whatsappPhone: Config.whatsappPhone,
+        soundEnabled: Config.soundEnabled
+      },
+
+      // Estadísticas
+      stats: {
+        totalTransactions: Storage.getTransactions().length,
+        totalPending: Storage.getPendingTransactions().length,
+        // ✅ CORREGIDO: Usar SecureStorage
+        totalCredits: (SecureStorage.getItem('credits-active', []) || []).length
+      }
+    };
+
+    return JSON.stringify(backup, null, 2);
+  },
+
+  downloadBackup(filename = null) {
+    const data = this.exportToJSON();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `backup-pos-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.lastBackup = Date.now();
+    Storage.saveConfig('last-backup', this.lastBackup);
+    UI.showToast('✅ Backup descargado exitosamente');
+  },
+
+
+    async importBackup(jsonString) {
+        try {
+            const backup = JSON.parse(jsonString);
+
+            if (!backup.version || !backup.timestamp) {
+                throw new Error('Formato de backup inválido');
+            }
+
+            // Confirmar importación
+            const confirm = window.confirm(
+                `¿Restaurar backup del ${new Date(backup.timestamp).toLocaleString('es-VE')}?\n\n` +
+                `Transacciones: ${backup.stats.totalTransactions}\n` +
+                `Pendientes: ${backup.stats.totalPending}\n` +
+                `Créditos: ${backup.stats.totalCredits}\n\n` +
+                `⚠️ Esto sobrescribirá los datos actuales.`
+            );
+
+            if (!confirm) return false;
+
+            // Restaurar datos
+            SecureStorage.setItem('transactions', backup.transactions);
+            SecureStorage.setItem('pending-transactions', backup.pendingTransactions);
+            SecureStorage.setItem('credits-active', backup.activeCredits);
+            SecureStorage.setItem('credits-completed', backup.completedCredits);
+
+            // Restaurar configuración
+            Config.vesRate = backup.config.vesRate;
+            Config.discountPercentage = backup.config.discountPercentage;
+            Config.tipPercentage = backup.config.tipPercentage;
+            Config.moraPercent = backup.config.moraPercent;
+            Config.moraEnabled = backup.config.moraEnabled;
+            Config.pmPhone = backup.config.pmPhone;
+            Config.pmCif = backup.config.pmCif;
+            Config.pmBankCode = backup.config.pmBankCode;
+            Config.whatsappPhone = backup.config.whatsappPhone;
+            Config.soundEnabled = backup.config.soundEnabled;
+            Config.save();
+
+            UI.updateStats();
+            UI.showToast('✅ Backup restaurado exitosamente');
+
+            return true;
+        } catch (error) {
+            console.error('Error importando backup:', error);
+            UI.showToast('❌ Error al importar backup: ' + error.message);
+            return false;
+        }
+    },
+
+    scheduleAutoBackup() {
+        // Auto-backup diario
+        setInterval(() => {
+            const lastBackup = Storage.getConfig('last-backup', 0);
+            if (Date.now() - lastBackup > this.autoBackupInterval) {
+                this.downloadBackup(`auto-backup-${new Date().toISOString().slice(0,10)}.json`);
+            }
+        }, this.autoBackupInterval);
+    }
+};
+
+const HistoryManager = {
+        open() {
+            document.getElementById('historyView').style.display = 'block';
+            document.getElementById('configView').style.display = 'none';
+            document.getElementById('historyModal').querySelector('.modal-title').textContent = 'Historial';
+            this.render();
+            UI.openModal('historyModal');
+        },
+
+        render() {
+            const container = document.getElementById('historyContent');
+            const txs = Storage.getTransactions();
+            const stats = Calculations.getTodayStats();
+
+            document.getElementById('statsHistoryHeader').innerHTML = `
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(37, 211, 102, 0.1); border-radius: 8px; display: flex; justify-content: space-between;">
+                    <span style="color: var(--ws-green); font-weight: 700;">💰 Hoy: $${Utils.formatCurrency(stats.totalAmount, 'USD')}</span>
+                    <span style="color: var(--gray-text);">(${stats.count} ventas)</span>
+                </div>
+            `;
+
+            if (txs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-state-icon">📊</span>
+                        <p>Sin transacciones</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            txs.slice(0, 50).forEach(tx => {
+                const date = new Date(tx.timestamp).toLocaleTimeString();
+                const token = tx.token || 'USDT';
+                const borderColor = tx.status === 'confirmed' ? 'var(--success)' : 'var(--warning)';
+                const moraLabel = tx.moraApplied 
+                    ? `<span style="color: var(--danger); font-size: 0.7rem;">(+${tx.moraDays}d mora)</span>` 
+                    : '';
+
+                html += `
+                    <div class="tx-item" style="border-left-color: ${borderColor};">
+                        <div class="tx-content-wrapper">
+                            <div class="tx-header">
+                                <span class="tx-amount">$${Utils.formatCurrency(tx.amount, 'USD')} ${token}</span>
+                                <span class="tx-time">${date}</span>
+                            </div>
+                            <div class="tx-hash">${tx.txHash || 'N/A'} ${moraLabel}</div>
+                        </div>
+                        <button class="delete-btn" data-action="delete-tx" data-id="${tx.transactionId}">🗑️</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        },
+
+        attemptDelete(txId, btnElement) {
+            if (btnElement.classList.contains('confirming')) {
+                const deleted = Storage.deleteTransaction(txId);
+                if (deleted) {
+                    UI.showToast('🗑️ Transacción eliminada');
+                    this.render();
+                }
+            } else {
+                btnElement.classList.add('confirming');
+                btnElement.textContent = '❌';
+                UI.showToast('⚠️ Toca de nuevo para borrar');
+                
+                setTimeout(() => {
+                    if (btnElement && btnElement.isConnected) {
+                        btnElement.classList.remove('confirming');
+                        btnElement.textContent = '🗑️';
+                    }
+                }, 3000);
+            }
+        },
+
+        exportCSV() {
+    const txs = Storage.getTransactions();
+    if (txs.length === 0) {
+      UI.showToast('ℹ️ Sin transacciones');
+      return;
+    }
+
+    // Agrupar transacciones por día
+    const byDay = {};
+    let totalUSD = 0;
+    let totalVES = 0;
+
+    txs.forEach(tx => {
+      const date = new Date(tx.timestamp);
+      const dayKey = date.toLocaleDateString('es-VE');
+
+      if (!byDay[dayKey]) {
+        byDay[dayKey] = { txs: [], totalUSD: 0, totalVES: 0 };
+      }
+
+      const ves = tx.finalAmountVES || Calculations.toVES(tx.amount);
+      byDay[dayKey].txs.push(tx);
+      byDay[dayKey].totalUSD += tx.amount;
+      byDay[dayKey].totalVES += ves;
+
+      totalUSD += tx.amount;
+      totalVES += ves;
+    });
+
+    // Construir CSV mejorado
+    const now = new Date();
+    let csv = '';
+
+    // CABECERA
+    csv += `REPORTE DE VENTAS - ${Config.businessName}\n`;
+    csv += `Generado: ${now.toLocaleString('es-VE')}\n`;
+    csv += `Tasa: 1 USD = ${Utils.formatNumber(Config.vesRate)} VES\n`;
+    csv += `${'='.repeat(80)}\n\n`;
+
+    // RESUMEN GENERAL
+    csv += `RESUMEN GENERAL\n`;
+    csv += `${'-'.repeat(80)}\n`;
+    csv += `Total Transacciones:,${txs.length}\n`;
+    csv += `Total USD:,$${Utils.formatNumber(totalUSD)}\n`;
+    csv += `Total VES:,Bs. ${Utils.formatNumber(totalVES)}\n`;
+    csv += `Tasa Promedio:,1 USD = ${Utils.formatNumber(Config.vesRate)} VES\n`;
+    csv += `${'='.repeat(80)}\n\n`;
+
+    // DETALLE POR DÍA
+    Object.keys(byDay).sort((a, b) => new Date(b) - new Date(a)).forEach(day => {
+      const dayData = byDay[day];
+
+      csv += `DETALLE - ${day}\n`;
+      csv += `${'-'.repeat(80)}\n`;
+      csv += `Hora,ID,Monto USD,Monto VES,Método,Referencia,Estado,Mora\n`;
+
+      dayData.txs.sort((a, b) => b.timestamp - a.timestamp).forEach(tx => {
+        const time = new Date(tx.timestamp).toLocaleTimeString('es-VE', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        const ves = tx.finalAmountVES || Calculations.toVES(tx.amount);
+        const method = tx.token || 'VES';
+        const ref = tx.txHash?.split('_')[1] || tx.txHash?.substring(0, 8) || 'N/A';
+        const status = tx.status === 'confirmed' ? '✓' : '⏳';
+        const mora = tx.moraDays > 0 ? `${tx.moraDays}d (+${tx.moraAmountVES})` : '-';
+
+        csv += `${time},${tx.transactionId},`;
+        csv += `$${tx.amount.toFixed(2)},`;
+        csv += `${ves.toFixed(2)},`;
+        csv += `${method},${ref},${status},${mora}\n`;
+      });
+
+      csv += `\n`;
+      csv += `SUBTOTAL DÍA:,$${Utils.formatNumber(dayData.totalUSD)},`;
+      csv += `${Utils.formatNumber(dayData.totalVES)} VES,,,,,\n`;
+      csv += `${'='.repeat(80)}\n\n`;
+    });
+
+    // PIE DE PÁGINA
+    csv += `\n`;
+    csv += `RESUMEN FINAL\n`;
+    csv += `${'-'.repeat(80)}\n`;
+    csv += `TOTAL GENERAL:,$${Utils.formatNumber(totalUSD)},${Utils.formatNumber(totalVES)} VES\n`;
+    csv += `Días con ventas:,${Object.keys(byDay).length}\n`;
+    csv += `Promedio por día:,$${Utils.formatNumber(totalUSD / Object.keys(byDay).length)}\n`;
+    csv += `\n`;
+    csv += `Generado por: POS Web3 v5.2.2\n`;
+    csv += `Reporte exportado el ${now.toLocaleDateString('es-VE')} a las ${now.toLocaleTimeString('es-VE')}\n`;
+
+    // Descargar archivo
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Reporte-${Config.businessName}-${now.toISOString().slice(0, 10)}.csv`;
+    link.click();
+
+    UI.showToast('📊 Reporte CSV descargado');
+  }
+    };
+    
+    const Conciliation = {
+        sourceModal: '',
+
+        open(sourceModalId) {
+            this.sourceModal = sourceModalId;
+            UI.closeModal(sourceModalId);
+
+            POSState.currentTransactionId = '';
+
+            document.getElementById('pmConfirmForm').style.display = 'none';
+            document.getElementById('pendingListContainer').style.display = 'block';
+            document.getElementById('pmQuickSearchInput').style.display = 'block';
+            document.getElementById('scanSection').style.display = 'block';
+            document.getElementById('pmError').style.display = 'none';
+            document.getElementById('reader').style.display = 'none';
+
+            this.renderPendingList();
+            UI.openModal('pmConfirmModal');
+        },
+
+        renderPendingList() {
+            const container = document.getElementById('pendingTxsList');
+            const txs = Storage.getPendingTransactions();
+
+            if (txs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <span class="empty-state-icon">✅</span>
+                        <p>No hay pagos pendientes</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            txs.forEach(tx => {
+                const date = new Date(tx.timestamp).toLocaleTimeString();
+                const moraData = Calculations.calculateMora(tx);
+                const moraWarning = moraData.days > 0 
+                    ? `<span style="color: var(--danger); font-size: 0.7rem; display: block;">(+${moraData.days} días mora)</span>` 
+                    : '';
+
+                html += `
+                    <div class="pending-tx-item" data-pending-id="${tx.transactionId}">
+                        <div style="text-align: left;">
+                            ID: ${tx.transactionId}
+                            <small style="display: block; font-weight: 400; color: var(--gray-text);">(${date})</small>
+                            ${moraWarning}
+                        </div>
+                        <span class="pending-tx-amount">${Utils.formatCurrency(tx.amountVES, 'VES')} VES</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        },
+
+        selectTransaction(transactionId) {
+            const pendingTx = Storage.getPendingTransactions().find(tx => tx.transactionId === transactionId);
+            if (!pendingTx) {
+                UI.showToast('❌ Transacción no encontrada');
+                return;
+            }
+
+            this.stopScanner();
+
+            POSState.currentTransactionId = transactionId;
+            document.getElementById('pmUniqueIdInput').value = transactionId;
+
+            const moraData = Calculations.calculateMora(pendingTx);
+
+            document.getElementById('pmReferenceInput').value = '';
+            document.getElementById('pmError').style.display = 'none';
+            document.getElementById('reminderButton').style.display = moraData.days > 0 ? 'block' : 'none';
+
+            let amountHtml;
+            if (moraData.days > 0) {
+                amountHtml = `
+                    <h3 style="color: var(--danger);">¡EN MORA!</h3>
+                    <p style="font-size: 1rem;">Original: ${Utils.formatCurrency(pendingTx.amountVES, 'VES')} VES</p>
+                    <p style="font-size: 0.9rem;">+ Mora (${moraData.days}d): ${Utils.formatNumber(moraData.amount)} VES</p>
+                    <p style="font-size: 1.5rem; font-weight: 900; color: var(--warning);">Total: ${Utils.formatNumber(moraData.total)} VES</p>
+                `;
+                NotificationManager.notifyMoraAlert(transactionId, moraData.days, moraData.total);
+            } else {
+                amountHtml = `
+                    <h3>Pendiente</h3>
+                    <p style="font-size: 1.5rem; font-weight: 900;">${Utils.formatCurrency(pendingTx.amountVES, 'VES')} VES</p>
+                `;
+            }
+
+            document.getElementById('selectedTxDetails').innerHTML = amountHtml + 
+                `<small>ID: <strong>${transactionId}</strong></small>`;
+
+            document.getElementById('pendingListContainer').style.display = 'none';
+            document.getElementById('pmQuickSearchInput').style.display = 'none';
+            document.getElementById('scanSection').style.display = 'none';
+            document.getElementById('pmConfirmForm').style.display = 'block';
+
+            setTimeout(() => document.getElementById('pmReferenceInput').focus(), 100);
+        },
+
+        quickSearch() {
+            const searchId = document.getElementById('pmQuickSearchInput').value.trim().toUpperCase();
+            if (searchId.length !== 6) {
+                UI.showToast('⚠️ ID de 6 dígitos');
+                return;
+            }
+
+            const pendingTx = Storage.getPendingTransactions().find(tx => tx.transactionId === searchId);
+            if (pendingTx) {
+                this.selectTransaction(searchId);
+            } else {
+                UI.showToast(`❌ ${searchId} no encontrado`);
+            }
+        },
+
+        backToList() {
+            POSState.currentTransactionId = '';
+            document.getElementById('pmReferenceInput').value = '';
+            document.getElementById('pmConfirmForm').style.display = 'none';
+            document.getElementById('pendingListContainer').style.display = 'block';
+            document.getElementById('pmQuickSearchInput').style.display = 'block';
+            document.getElementById('scanSection').style.display = 'block';
+            document.getElementById('pmError').style.display = 'none';
+            this.renderPendingList();
+        },
+
+        process() {
+            const pmRef = document.getElementById('pmReferenceInput').value.trim();
+            const pmId = document.getElementById('pmUniqueIdInput').value.trim().toUpperCase();
+            const errorDiv = document.getElementById('pmError');
+
+            if (!pmId || pmId.length !== 6) {
+                errorDiv.textContent = '❌ Selecciona una venta';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!/^\d{6}$/.test(pmRef)) {
+                errorDiv.textContent = '❌ Referencia: 6 dígitos numéricos';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // ✅ NUEVO: Validar que la referencia no esté duplicada
+            const existingTx = Storage.getTransactions().find(tx => 
+                tx.txHash && tx.txHash.includes(pmRef)
+            );
+
+            if (existingTx) {
+                errorDiv.innerHTML = `⚠️ <strong>Referencia duplicada!</strong><br>` +
+                    `Ya usada en ID: <strong>${existingTx.transactionId}</strong><br>` +
+                    `Fecha: ${new Date(existingTx.timestamp).toLocaleString('es-VE')}<br>` +
+                    `Monto: ${Utils.formatCurrency(existingTx.finalAmountVES || existingTx.amount, 'VES')} VES`;
+                errorDiv.style.display = 'block';
+                errorDiv.style.borderLeftColor = 'var(--danger)';
+                Utils.vibrate(200);
+                return;
+            }
+
+            const pendingTx = Storage.getPendingTransactions().find(tx => tx.transactionId === pmId);
+            if (!pendingTx) {
+                errorDiv.textContent = `❌ ${pmId} no encontrado`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const moraData = Calculations.calculateMora(pendingTx);
+            const finalAmountVES = moraData.total;
+            const amountUSD = Calculations.toUSD(finalAmountVES);
+
+            UI.closeModal('pmConfirmModal');
+
+            Storage.saveTransaction({
+                amount: amountUSD,
+                originalAmount: Calculations.toUSD(pendingTx.amountVES),
+                txHash: `${pmId}_${pmRef}`,
+                timestamp: Date.now(),
+                status: 'confirmed',
+                token: 'VES',
+                baseCurrency: 'VES',
+                transactionId: pmId,
+                moraApplied: moraData.days > 0,
+                moraDays: moraData.days,
+                moraAmountVES: moraData.amount,
+                finalAmountVES: finalAmountVES
+            });
+
+            Storage.removePendingTransaction(pmId);
+
+            NotificationManager.notifyPaymentConfirmed(pmId, finalAmountVES, amountUSD);
+
+            UI.showToast(`🎉 Conciliado: ${Utils.formatCurrency(finalAmountVES, 'VES')} VES`);
+
+            setTimeout(() => {
+                WhatsAppManager.sendReceipt(pmId, finalAmountVES, amountUSD, pmRef, moraData.days, moraData.amount);
+            }, 500);
+        },
+
+        sendReminder() {
+            const pmId = document.getElementById('pmUniqueIdInput').value.trim().toUpperCase();
+            const pendingTx = Storage.getPendingTransactions().find(tx => tx.transactionId === pmId);
+
+            if (!pendingTx) {
+                UI.showToast('❌ No encontrado');
+                return;
+            }
+
+            const moraData = Calculations.calculateMora(pendingTx);
+            WhatsAppManager.sendReminder(pmId, pendingTx.amountVES, moraData);
+        },
+
+        async pasteReference() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    const clean = text.replace(/[^0-9]/g, '').substring(0, 6);
+                    document.getElementById('pmReferenceInput').value = clean;
+                    UI.showToast(`Ref: ${clean}`);
+                } else {
+                    UI.showToast('❌ Mantén presionado para PEGAR');
+                    document.getElementById('pmReferenceInput').focus();
+                }
+            } catch {
+                UI.showToast('❌ Mantén presionado para PEGAR');
+                document.getElementById('pmReferenceInput').focus();
+            }
+        },
+
+        processQrContent(decodedText) {
+            if (decodedText.startsWith('WEB3POS:VERIFY:')) {
+                const parts = decodedText.split(':');
+                if (parts.length >= 3) {
+                    const txId = parts[2];
+                    this.selectTransaction(txId);
+                    NotificationManager.playConfirmationSound();
+                    Utils.vibrate(50);
+                }
+            } else {
+                UI.showToast('❌ QR no válido para POS');
+            }
+        },
+
+        startCameraScan() {
+            const reader = document.getElementById('reader');
+            reader.style.display = 'block';
+
+            if (typeof Html5Qrcode === 'undefined') {
+                UI.showToast('⚠️ Error cargando librería');
+                return;
+            }
+
+            if (!POSState.html5QrcodeScanner) {
+                POSState.html5QrcodeScanner = new Html5Qrcode("reader");
+            }
+
+            POSState.html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    this.processQrContent(decodedText);
+                },
+                (errorMessage) => {}
+            ).catch(err => {
+                console.error(err);
+                UI.showToast('❌ Error iniciando cámara');
+                reader.style.display = 'none';
+            });
+        },
+
+        stopScanner() {
+            if (POSState.html5QrcodeScanner) {
+                POSState.html5QrcodeScanner.stop().then(() => {
+                    document.getElementById('reader').style.display = 'none';
+                    POSState.html5QrcodeScanner.clear();
+                }).catch(err => console.log('Stop failed', err));
+            }
+        },
+
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (typeof Html5Qrcode === 'undefined') {
+                UI.showToast('⚠️ Librería no cargada');
+                return;
+            }
+
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.scanFile(file, true)
+                .then(decodedText => {
+                    this.processQrContent(decodedText);
+                })
+                .catch(err => {
+                    UI.showToast('❌ No se encontró QR en imagen');
+                });
+        },
+
+        triggerFileUpload() {
+            document.getElementById('qrFileInput').click();
+        }
+    };
+
+    const EventHandlers = {
+        init() {
+            document.querySelector('.keypad-area').addEventListener('click', (e) => {
+                const key = e.target.closest('[data-value], [data-action]');
+                if (!key) return;
+
+                Auth.registerActivity();
+                Utils.vibrate(10);
+
+                const value = key.dataset.value;
+                const action = key.dataset.action;
+
+                if (value !== undefined) this.handleNumericInput(value);
+                else if (action) this.handleAction(action);
+
+                UI.updateDisplay();
+            });
+
+            document.getElementById('pinKeypad').addEventListener('click', (e) => {
+                const key = e.target.closest('.pin-key');
+                if (!key) return;
+
+                const value = key.dataset.pinValue;
+                const action = key.dataset.pinAction;
+
+                if (value !== undefined) Auth.handlePinKey(value);
+                else if (action === 'delete') Auth.handlePinKey('delete');
+            });
+
+            document.getElementById('qrFileInput').addEventListener('change', (e) => {
+                Conciliation.handleFileUpload(e);
+            });
+
+            document.addEventListener('click', (e) => {
+                const closeBtn = e.target.closest('[data-close]');
+                if (closeBtn) { UI.closeModal(closeBtn.dataset.close); return; }
+
+                const actionBtn = e.target.closest('[data-action]');
+                if (actionBtn) { this.handleGlobalAction(actionBtn.dataset.action, actionBtn); return; }
+
+                const copyBtn = e.target.closest('[data-copy]');
+                if (copyBtn) { this.handleCopy(copyBtn.dataset.copy); return; }
+
+                const paymentBtn = e.target.closest('[data-payment]');
+                if (paymentBtn) { this.handlePayment(paymentBtn.dataset.payment); return; }
+
+                const pendingItem = e.target.closest('[data-pending-id]');
+                if (pendingItem) { Conciliation.selectTransaction(pendingItem.dataset.pendingId); return; }
+            });
+
+            document.getElementById('currencyLabel').addEventListener('click', () => {
+                let rawValue = POSState.currentValue.replace('.', '');
+                if (rawValue !== '0' && rawValue !== '00' && rawValue !== '') {
+                    UI.showToast('⚠️ Limpia (C) antes de cambiar');
+                    return;
+                }
+                POSState.baseCurrency = POSState.baseCurrency === 'USD' ? 'VES' : 'USD';
+                Storage.saveConfig('base_currency', POSState.baseCurrency);
+                UI.showToast(`Moneda: ${POSState.baseCurrency}`);
+                UI.updateDisplay();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                Auth.registerActivity();
+
+                if (document.getElementById('authModal').classList.contains('active')) {
+                    const pinInput = document.getElementById('pinInput');
+                    if (e.key >= '0' && e.key <= '9' && pinInput.value.length < 4) {
+                        pinInput.value += e.key;
+                        if (pinInput.value.length === 4) Auth.authenticate();
+                    } else if (e.key === 'Backspace') {
+                        pinInput.value = pinInput.value.slice(0, -1);
+                    } else if (e.key === 'Enter') {
+                        Auth.authenticate();
+                    }
+                    return;
+                }
+
+                if (e.key === 'Escape') {
+                    ['cryptoPaymentModal', 'paymentSelectionModal', 'pagoMovilModal', 'pmStaticQrModal', 'pmConfirmModal', 'historyModal'].forEach(UI.closeModal);
+                }
+            });
+
+            window.addEventListener('beforeunload', (e) => {
+                if (parseFloat(POSState.currentValue) > 0) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            setInterval(() => {
+                Auth.checkSessionTimeout();
+                UI.updateSessionIndicator();
+            }, 60000);
+        },
+
+        handleNumericInput(value) {
+            const s = POSState;
+            if (s.currentValue === '0' && value !== '0') s.currentValue = value;
+            else if (s.currentValue.length < 15) s.currentValue += value;
+        },
+
+        handleAction(action) {
+            const s = POSState;
+            switch (action) {
+                case 'decimal':
+                    if (!s.currentValue.includes('.')) s.currentValue += '.';
+                    break;
+                case 'delete':
+                    s.currentValue = s.currentValue.slice(0, -1);
+                    if (!s.currentValue) s.currentValue = '0';
+                    break;
+                case 'clear': s.clear(); break;
+                case 'discount': this.applyModifier('discount'); break;
+                case 'tip': this.applyModifier('tip'); break;
+                case 'select-payment': Payments.handleSelection(); break;
+                case 'history': HistoryManager.open(); break;
+                case 'change-crypto': this.changeCrypto(); break;
+            }
+        },
+
+        handleGlobalAction(action, element) {
+            switch (action) {
+                case 'authenticate': Auth.authenticate(); break;
+                case 'open-config': Settings.open(); break;
+                case 'save-config': Settings.save(); break;
+                case 'export-csv': HistoryManager.exportCSV(); break;
+                case 'share-daily-report': WhatsAppManager.shareDailyReport(); break;
+                case 'open-conciliation': Conciliation.open(element.dataset.source); break;
+                case 'quick-search': Conciliation.quickSearch(); break;
+                case 'paste-reference': Conciliation.pasteReference(); break;
+                case 'send-reminder': Conciliation.sendReminder(); break;
+                case 'confirm-conciliation': Conciliation.process(); break;
+                case 'back-to-list': Conciliation.backToList(); break;
+                case 'send-whatsapp': Payments.sendPMWhatsApp(); break;
+                case 'start-camera-scan': Conciliation.startCameraScan(); break;
+                case 'upload-qr-image': Conciliation.triggerFileUpload(); break;
+                case 'share-qr-image': WhatsAppManager.shareQrImage(); break;
+                case 'download-qr-image': WhatsAppManager.downloadQrImage(); break;
+                
+                // Nuevo: Acción para borrar transacción
+                case 'delete-tx':
+                    HistoryManager.attemptDelete(element.dataset.id, element);
+                    break;
+            }
+        },
+
+        handleCopy(type) {
+            switch (type) {
+                case 'address':
+                    Utils.copyToClipboard(document.getElementById('walletAddressDisplay').textContent, 'Dirección copiada');
+                    break;
+                case 'pm-verbose':
+                    const data = `Telf: ${Config.pmPhone}\nCI/RIF: ${Config.pmCif}\nBanco: ${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})\nMonto: ${POSState.pmAmountToConfirm.toFixed(2)} VES\nID: ${POSState.currentTransactionId}`;
+                    Utils.copyToClipboard(data, 'Datos copiados');
+                    break;
+                case 'pm-clean':
+                    Utils.copyToClipboard(WhatsAppManager.getQuickPasteData(POSState.pmAmountToConfirm), 'Datos limpios');
+                    break;
+            }
+        },
+
+        handlePayment(type) {
+            switch (type) {
+                case 'crypto': Payments.openCrypto(); break;
+                case 'pm-qr': Payments.openPMStaticQR(); break;
+                case 'pm-whatsapp': Payments.openPagoMovil(); break;
+                // AGREGADO: Caso para créditos
+                case 'credits': 
+                    UI.closeModal('paymentSelectionModal');
+                    showPaymentModalWithCredit(); 
+                    break;
+            }
+        },
+
+        applyModifier(type) {
+            if (document.getElementById('authModal').classList.contains('active')) return;
+
+            let val = parseFloat(POSState.currentValue);
+            if (val === 0 || isNaN(val)) {
+                UI.showToast('⚠️ Ingresa monto primero');
+                return;
+            }
+
+            POSState.resetModifiers();
+            const discountDisplay = document.getElementById('discountDisplay');
+
+            if (type === 'discount') {
+                const newAmt = Calculations.applyDiscount(val, Config.discountPercentage);
+                POSState.currentValue = (Math.round(newAmt * 100) / 100).toFixed(2);
+                POSState.isDiscountApplied = true;
+                discountDisplay.textContent = `-${Config.discountPercentage}% Descuento`;
+            } else if (type === 'tip') {
+                const newAmt = Calculations.applyTip(val, Config.tipPercentage);
+                POSState.currentValue = (Math.round(newAmt * 100) / 100).toFixed(2);
+                POSState.isTipApplied = true;
+                discountDisplay.textContent = `+${Config.tipPercentage}% Propina`;
+            }
+            discountDisplay.style.display = 'block';
+        },
+
+        changeCrypto() {
+            const activeTokens = Object.keys(Config.supportedTokens).filter(k => Config.supportedTokens[k].active);
+            if (activeTokens.length === 0) {
+                UI.showToast('⚠️ Sin monedas activas');
+                return;
+            }
+            const idx = activeTokens.indexOf(POSState.currentCrypto);
+            const next = (idx + 1) % activeTokens.length;
+            POSState.currentCrypto = activeTokens[next];
+            document.getElementById('tokenSymbolDisplay').textContent = POSState.currentCrypto;
+            UI.showToast(`Cambiado a ${POSState.currentCrypto}`);
+        }
+    };
+
+    // 7. INICIALIZACIÓN
+    window.addEventListener('load', () => {
+        Config.load();
+        UI.cacheElements();
+        EventHandlers.init();
+        UI.updateStats();
+        UI.updateDisplay();
+
+        const activeTokens = Object.keys(Config.supportedTokens).filter(k => Config.supportedTokens[k].active);
+        POSState.currentCrypto = activeTokens[0] || 'USDT';
+        document.getElementById('tokenSymbolDisplay').textContent = POSState.currentCrypto;
+
+        // Inicia el modal de autenticación
+        UI.openModal('authModal');
+        
+        console.log('✅ Web3 POS v5.1 - Config Fix & Mora Switch');
+    });
+// ==========================================
+// MÓDULO DE CRÉDITOS Y PAGOS POR CUOTAS
+// Agregado: Diciembre 2025
+// ==========================================
+
+class CreditManager {
+    constructor() {
+        this.credits = this.loadCredits();
+        this.initCreditSystem();
+    }
+
+    initCreditSystem() {
+        // Verificar vencimientos diariamente
+        this.checkOverdueCredits();
+        setInterval(() => this.checkOverdueCredits(), 86400000); // 24 horas
+    }
+
+    loadCredits() {
+        const saved = localStorage.getItem('creditSales');
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    saveCredits() {
+        localStorage.setItem('creditSales', JSON.stringify(this.credits));
+    }
+
+    generateCreditId() {
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000);
+        return `CR-${timestamp}-${random}`;
+    }
+
+    createCredit(creditData) {
+        const credit = {
+            creditId: this.generateCreditId(),
+            clientName: creditData.clientName,
+            clientPhone: creditData.clientPhone,
+            totalAmount: parseFloat(creditData.totalAmount),
+            currency: creditData.currency || 'USD',
+            numberOfInstallments: parseInt(creditData.numberOfInstallments),
+            installmentAmount: parseFloat(creditData.totalAmount) / parseInt(creditData.numberOfInstallments),
+            frequency: creditData.frequency || 'semanal',
+            paidInstallments: 0,
+            pendingAmount: parseFloat(creditData.totalAmount),
+            createdDate: new Date().toISOString(),
+            firstDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
+            nextDueDate: creditData.firstDueDate || this.calculateFirstDueDate(creditData.frequency),
+            status: 'active',
+            deliveryStatus: creditData.deliveryNow ? 'delivered' : 'pending',
+            products: creditData.products || [],
+            payments: [],
+            notes: creditData.notes || '',
+            moraEnabled: true,
+            lastReminderDate: null,
+            lastContactDate: null
+        };
+
+        this.credits.push(credit);
+        this.saveCredits();
+        return credit;
+    }
+
+    calculateFirstDueDate(frequency) {
+        const now = new Date();
+        const days = {
+            'semanal': 7,
+            'quincenal': 15,
+            'mensual': 30
+        };
+        now.setDate(now.getDate() + (days[frequency] || 7));
+        return now.toISOString();
+    }
+
+    calculateNextDueDate(currentDate, frequency) {
+        const date = new Date(currentDate);
+        const days = {
+            'semanal': 7,
+            'quincenal': 15,
+            'mensual': 30
+        };
+        date.setDate(date.getDate() + (days[frequency] || 7));
+        return date.toISOString();
+    }
+
+    registerPayment(creditId, paymentAmount, paymentMethod = 'efectivo') {
+        const credit = this.credits.find(c => c.creditId === creditId);
+        if (!credit) return null;
+
+        const payment = {
+            paymentId: `PAY-${Date.now()}`,
+            amount: parseFloat(paymentAmount),
+            date: new Date().toISOString(),
+            method: paymentMethod,
+            previousBalance: credit.pendingAmount
+        };
+
+        credit.pendingAmount -= payment.amount;
+        credit.paidInstallments += 1;
+        credit.payments.push(payment);
+        credit.lastPaymentDate = payment.date;
+
+        // Calcular próxima fecha de vencimiento
+        if (credit.pendingAmount > 0) {
+            credit.nextDueDate = this.calculateNextDueDate(credit.nextDueDate, credit.frequency);
+            credit.status = 'active';
+        } else {
+            credit.status = 'completed';
+            credit.pendingAmount = 0;
+            credit.deliveryStatus = 'delivered';
+        }
+
+        this.saveCredits();
+        return { credit, payment };
+    }
+
+    getCredit(creditId) {
+        return this.credits.find(c => c.creditId === creditId);
+    }
+
+    getActiveCredits() {
+        return this.credits.filter(c => c.status === 'active' || c.status === 'overdue');
+    }
+
+    getOverdueCredits() {
+        const now = new Date();
+        return this.credits.filter(c => {
+            if (c.status !== 'active' && c.status !== 'overdue') return false;
+            const dueDate = new Date(c.nextDueDate);
+            return now > dueDate;
+        });
+    }
+
+    checkOverdueCredits() {
+        const overdueCredits = this.getOverdueCredits();
+        overdueCredits.forEach(credit => {
+            if (credit.status === 'active') {
+                credit.status = 'overdue';
+            }
+        });
+        if (overdueCredits.length > 0) {
+            this.saveCredits();
+        }
+    }
+
+    getCreditsByClient(clientPhone) {
+        return this.credits.filter(c => c.clientPhone === clientPhone);
+    }
+
+    getTotalDebt(clientPhone) {
+        return this.getCreditsByClient(clientPhone)
+            .filter(c => c.status === 'active' || c.status === 'overdue')
+            .reduce((sum, c) => sum + c.pendingAmount, 0);
+    }
+
+    deleteCredit(creditId) {
+        this.credits = this.credits.filter(c => c.creditId !== creditId);
+        this.saveCredits();
+    }
+
+    getStats() {
+        const active = this.getActiveCredits();
+        const overdue = this.getOverdueCredits();
+        const completed = this.credits.filter(c => c.status === 'completed');
+        
+        const totalActive = active.reduce((sum, c) => sum + c.pendingAmount, 0);
+        const totalOverdue = overdue.reduce((sum, c) => sum + c.pendingAmount, 0);
+
+        return {
+            totalCredits: this.credits.length,
+            activeCredits: active.length,
+            overdueCredits: overdue.length,
+            completedCredits: completed.length,
+            totalActiveMoney: totalActive,
+            totalOverdueMoney: totalOverdue
+        };
+    }
+}
+
+// Inicializar gestor de créditos
+const creditManager = new CreditManager();
+
+// ==========================================
+// GENERADOR DE MENSAJES WHATSAPP - CRÉDITOS
+// ==========================================
+
+class CreditWhatsAppMessages {
+    
+    static formatCurrency(amount, currency = 'USD') {
+        if (currency === 'USD') {
+            return `$${amount.toFixed(2)}`;
+        } else {
+            return `Bs. ${amount.toFixed(2)}`;
+        }
+    }
+
+    static formatDate(isoDate) {
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('es-VE', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        });
+    }
+
+    static generateInitialMessage(credit) {
+        const installmentAmount = this.formatCurrency(credit.installmentAmount, credit.currency);
+        const totalAmount = this.formatCurrency(credit.totalAmount, credit.currency);
+        const firstDue = this.formatDate(credit.firstDueDate);
+        
+        let productsText = '';
+        if (credit.products && credit.products.length > 0) {
+            productsText = '\n📦 *PRODUCTOS:*\n';
+            credit.products.forEach(p => {
+                productsText += `• ${p.name} x${p.quantity} - ${this.formatCurrency(p.price * p.quantity, credit.currency)}\n`;
+            });
+        }
+
+        const deliveryText = credit.deliveryStatus === 'delivered' 
+            ? '✅ Producto entregado' 
+            : '⏳ Producto se entrega al completar pagos';
+
+        return `🎉 *PLAN DE PAGOS CREADO*
+
+Hola *${credit.clientName}*! 👋
+
+Se ha registrado tu compra a crédito:
+${productsText}
+💰 *TOTAL:* ${totalAmount}
+📊 *PLAN:* ${credit.numberOfInstallments} cuotas de ${installmentAmount}
+📅 *FRECUENCIA:* Pago ${credit.frequency}
+📅 *PRIMERA CUOTA:* ${firstDue}
+${deliveryText}
+
+*CÓDIGO:* ${credit.creditId}
+
+¡Gracias por tu compra! 🛍️
+Te enviaremos recordatorios antes de cada vencimiento.`;
+    }
+
+    static generatePaymentMessage(credit, payment) {
+        const paymentAmount = this.formatCurrency(payment.amount, credit.currency);
+        const pendingAmount = this.formatCurrency(credit.pendingAmount, credit.currency);
+        const paymentDate = this.formatDate(payment.date);
+        
+        let statusMessage = '';
+        if (credit.status === 'completed') {
+            statusMessage = `
+
+🎊 *¡FELICIDADES ${credit.clientName.toUpperCase()}!*
+Has completado todos los pagos ✅
+
+${credit.deliveryStatus === 'pending' ? '📦 Tu producto está listo para entregar' : ''}
+
+¡Gracias por tu preferencia! 🙏`;
+        } else {
+            const nextDue = this.formatDate(credit.nextDueDate);
+            statusMessage = `
+
+💳 *SALDO PENDIENTE:* ${pendingAmount}
+📊 *CUOTAS PAGADAS:* ${credit.paidInstallments}/${credit.numberOfInstallments}
+📅 *PRÓXIMA CUOTA:* ${nextDue}`;
+        }
+
+        return `✅ *PAGO RECIBIDO*
+
+Hola *${credit.clientName}*! 👋
+
+Se ha registrado tu pago:
+
+💵 *MONTO:* ${paymentAmount}
+📅 *FECHA:* ${paymentDate}
+🆔 *CÓDIGO:* ${credit.creditId}
+${statusMessage}
+
+*RECIBO:* ${payment.paymentId}`;
+    }
+
+    static generateReminderMessage(credit, daysOverdue = 0) {
+        const installmentAmount = this.formatCurrency(credit.installmentAmount, credit.currency);
+        const pendingAmount = this.formatCurrency(credit.pendingAmount, credit.currency);
+        const dueDate = this.formatDate(credit.nextDueDate);
+
+        let urgencyEmoji = '📅';
+        let statusText = 'RECORDATORIO DE PAGO';
+        
+        if (daysOverdue > 0) {
+            urgencyEmoji = '⚠️';
+            statusText = 'PAGO VENCIDO';
+        }
+
+        return `${urgencyEmoji} *${statusText}*
+
+Hola *${credit.clientName}*! 👋
+
+${daysOverdue > 0 ? 
+    `Tu pago está vencido hace ${daysOverdue} día(s).` : 
+    `Te recordamos tu próximo pago.`}
+
+💰 *CUOTA:* ${installmentAmount}
+💳 *SALDO TOTAL:* ${pendingAmount}
+📅 *FECHA VENCIMIENTO:* ${dueDate}
+🆔 *CÓDIGO:* ${credit.creditId}
+
+*Para pagar:*
+📱 Responde a este mensaje y te envío los datos bancarios
+
+¡Gracias! 🙏`;
+    }
+
+    static generateOverdueMessage(credit) {
+        const dueDate = new Date(credit.nextDueDate);
+        const now = new Date();
+        const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+        
+        return this.generateReminderMessage(credit, daysOverdue);
+    }
+}
+
+// ==========================================
+// MODAL DE PAGO POR CUOTAS - SIMPLIFICADO
+// ==========================================
+
+function showPaymentModalWithCredit() {
+    const displayAmt = parseFloat(POSState.currentValue || '0');
+    if (displayAmt <= 0) {
+        UI.showToast('⚠️ Ingresa un monto');
+        return;
+    }
+    
+    const currentTotal = POSState.baseCurrency === 'VES' 
+        ? Calculations.toUSD(displayAmt) 
+        : displayAmt;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active'; 
+    modal.id = 'payment-credit-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>📊 Venta a Crédito</h3>
+                <button class="close-btn" onclick="closePaymentCreditModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>👤 Nombre del Cliente *</label>
+                    <input type="text" id="credit-client-name" placeholder="Ej: María González" required>
+                </div>
+
+                <div class="form-group">
+                    <label>📱 Teléfono WhatsApp *</label>
+                    <input type="tel" id="credit-client-phone" placeholder="04121234567" maxlength="11" required>
+                </div>
+
+                <div class="form-group">
+                    <label>📦 Producto/Servicio *</label>
+                    <input type="text" id="credit-product-name" placeholder="Ej: Laptop HP, Servicio de Reparación..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>💰 Monto Total *</label>
+                    <input type="number" id="credit-total-amount" 
+                           value="${currentTotal.toFixed(2)}" step="0.01" min="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>💵 Moneda Base de la Venta *</label>
+                    <select id="credit-currency" onchange="updateInstallmentCurrency()">
+                        <option value="USD" ${POSState.baseCurrency === 'USD' ? 'selected' : ''}>USD ($) - Cuotas en dólares</option>
+                        <option value="VES" ${POSState.baseCurrency === 'VES' ? 'selected' : ''}>VES (Bs.) - Cuotas en bolívares</option>
+                    </select>
+                    <small style="color: var(--gray-text); font-size: 0.75rem; display: block; margin-top: 5px;">
+                        ℹ️ Define si las cuotas se pagarán en USD o VES
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>📊 Número de Cuotas *</label>
+                    <select id="credit-installments" onchange="calculateInstallmentAmount()">
+                        <option value="2">2 cuotas</option>
+                        <option value="3">3 cuotas</option>
+                        <option value="4" selected>4 cuotas</option>
+                        <option value="6">6 cuotas</option>
+                        <option value="8">8 cuotas</option>
+                        <option value="12">12 cuotas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>📅 Frecuencia de Pago *</label>
+                    <select id="credit-frequency">
+                        <option value="semanal">Semanal (cada 7 días)</option>
+                        <option value="quincenal" selected>Quincenal (cada 15 días)</option>
+                        <option value="mensual">Mensual (cada 30 días)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>💵 Monto por Cuota</label>
+                    <input type="text" id="credit-installment-amount" readonly 
+                           style="font-weight: bold; font-size: 1.2em; color: #2ecc71; background: rgba(46, 204, 113, 0.1); text-align: center;">
+                </div>
+
+                <div class="form-group">
+                    <label>📅 Primera Fecha de Vencimiento *</label>
+                    <input type="date" id="credit-first-due-date" required>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="credit-deliver-now" style="width: 20px; height: 20px;">
+                        <span>📦 Entregar producto ahora (antes de completar pagos)</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 Notas adicionales (opcional)</label>
+                    <textarea id="credit-notes" rows="2" 
+                              placeholder="Ej: Cliente prefiere pagos los viernes..." 
+                              style="resize: vertical;"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="createCreditSale()" 
+                        style="width: 100%; padding: 15px; font-size: 1.1em; margin-top: 15px;">
+                    ✅ Crear Venta a Crédito
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    calculateInstallmentAmount();
+    
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('credit-first-due-date');
+    if (dateInput) {
+        dateInput.setAttribute('min', today);
+        dateInput.value = today;
+    }
+}
+
+function updateInstallmentCurrency() {
+    calculateInstallmentAmount();
+}
+
+function closePaymentCreditModal() {
+    const modal = document.getElementById('payment-credit-modal');
+    if (modal) modal.remove();
+}
+
+function calculateInstallmentAmount() {
+    const totalInput = document.getElementById('credit-total-amount');
+    const installmentsInput = document.getElementById('credit-installments');
+    const currencyInput = document.getElementById('credit-currency');
+    const amountDisplay = document.getElementById('credit-installment-amount');
+    
+    if (!totalInput || !installmentsInput || !currencyInput || !amountDisplay) return;
+    
+    const total = parseFloat(totalInput.value || 0);
+    const installments = parseInt(installmentsInput.value || 4);
+    const currency = currencyInput.value;
+    
+    const installmentAmount = (total / installments).toFixed(2);
+    const symbol = currency === 'USD' ? '$' : 'Bs.';
+    
+    amountDisplay.value = `${symbol}${installmentAmount}`;
+}
+
+function createCreditSale() {
+    const clientName = document.getElementById('credit-client-name').value.trim();
+    const clientPhone = document.getElementById('credit-client-phone').value.trim();
+    const productName = document.getElementById('credit-product-name').value.trim();
+    const totalAmount = document.getElementById('credit-total-amount').value;
+    const currency = document.getElementById('credit-currency').value;
+    const numberOfInstallments = document.getElementById('credit-installments').value;
+    const frequency = document.getElementById('credit-frequency').value;
+    const firstDueDate = document.getElementById('credit-first-due-date').value;
+    const notes = document.getElementById('credit-notes').value.trim();
+
+    // Validaciones
+    if (!clientName) {
+        UI.showToast('⚠️ Falta nombre del cliente');
+        return;
+    }
+    
+    if (!clientPhone || !/^04\d{9}$/.test(clientPhone)) {
+        UI.showToast('⚠️ Teléfono inválido (04XXXXXXXXX)');
+        return;
+    }
+
+    if (!productName) {
+        UI.showToast('⚠️ Falta descripción del producto/servicio');
+        return;
+    }
+    
+    if (!totalAmount || parseFloat(totalAmount) <= 0) {
+        UI.showToast('⚠️ Monto inválido');
+        return;
+    }
+
+    if (!firstDueDate) {
+        UI.showToast('⚠️ Selecciona fecha de vencimiento');
+        return;
+    }
+
+    const products = [{
+        name: productName,
+        quantity: 1,
+        price: parseFloat(totalAmount)
+    }];
+
+    const creditData = {
+        clientName,
+        clientPhone: clientPhone,
+        totalAmount,
+        currency,
+        numberOfInstallments,
+        frequency,
+        firstDueDate: new Date(firstDueDate).toISOString(),
+        deliveryNow: document.getElementById('credit-deliver-now').checked,
+        products,
+        notes
+    };
+
+    const credit = creditManager.createCredit(creditData);
+    const message = CreditWhatsAppMessages.generateInitialMessage(credit);
+    
+    WhatsAppManager.openWhatsApp(message, null);
+
+    POSState.clear();
+    closePaymentCreditModal();
+    UI.closeModal('paymentSelectionModal');
+    
+    UI.showToast('✅ Crédito Creado - Selecciona contacto en WhatsApp');
+}
+
+// ==========================================
+// ENVIAR DATOS DE PAGO AL CLIENTE
+// ==========================================
+
+function sendPaymentDetailsToClient(creditId) {
+    const credit = creditManager.getCredit(creditId);
+    if (!credit) return;
+
+    const symbol = credit.currency === 'USD' ? '$' : 'Bs.';
+    const cuotaVES = credit.currency === 'USD' 
+        ? Calculations.toVES(credit.installmentAmount)
+        : credit.installmentAmount;
+
+    const message = `💳 *DATOS PARA PAGO DE CUOTA*
+
+Hola *${credit.clientName}*! 👋
+
+*RESUMEN DE TU CUOTA:*
+💰 Monto: ${symbol}${credit.installmentAmount.toFixed(2)}${credit.currency === 'USD' ? ` (Bs. ${Utils.formatNumber(cuotaVES)})` : ''}
+🆔 Código: ${credit.creditId}
+📅 Vencimiento: ${new Date(credit.nextDueDate).toLocaleDateString('es-VE')}
+
+*📱 DATOS PAGO MÓVIL:*
+🏦 ${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})
+👤 ${Config.pmCif}
+📞 ${Config.pmPhone}
+
+⚠️ *IMPORTANTE DESPUÉS DE PAGAR:*
+Envíame:
+1️⃣ 📷 Captura del comprobante
+*O* responde:
+*${credit.creditId} XXXXXX*
+(Código + últimos 6 dígitos de referencia)
+
+¡Gracias por tu puntualidad! 🙏`;
+
+    WhatsAppManager.openWhatsApp(message, null);
+    
+    credit.lastContactDate = new Date().toISOString();
+    creditManager.saveCredits();
+    
+    UI.showToast('📤 Datos de pago enviados');
+}
+
+// ==========================================
+// PANEL DE CARTERA - COMPLETO
+// ==========================================
+
+function showCreditsPanel() {
+    UI.closeModal('historyModal');
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.id = 'credits-panel-modal';
+    
+    const activeCredits = creditManager.getActiveCredits();
+    const stats = creditManager.getStats();
+
+    let creditsHTML = '';
+    
+    if (activeCredits.length === 0) {
+        creditsHTML = `
+            <div class="empty-state" style="padding: 40px; text-align: center;">
+                <span style="font-size: 3rem;">📋</span>
+                <p style="color: var(--gray-text); margin-top: 10px;">No hay créditos activos</p>
+            </div>`;
+    } else {
+        creditsHTML = activeCredits.map(credit => {
+            const isOverdue = credit.status === 'overdue';
+            const symbol = credit.currency === 'USD' ? '$' : 'Bs.';
+            
+            return `
+                <div style="background: ${isOverdue ? 'rgba(224, 79, 94, 0.1)' : 'rgba(255,255,255,0.05)'}; 
+                            margin-bottom: 15px; padding: 15px; border-radius: 8px;
+                            border-left: 4px solid ${isOverdue ? 'var(--danger)' : 'var(--success)'};">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="margin:0; font-size:1.1rem; color:var(--white);">${credit.clientName}</h3>
+                        <span style="font-size:0.75rem; background:${isOverdue ? 'var(--danger)' : 'var(--ws-green)'}; 
+                                     padding:4px 8px; border-radius:4px; color:white; font-weight: 600;">
+                            ${isOverdue ? '⚠️ VENCIDO' : '✅ AL DÍA'}
+                        </span>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.85rem; 
+                                color:var(--gray-text); margin-bottom: 12px;">
+                        <div>Deuda: <strong style="color:var(--white)">${symbol}${credit.pendingAmount.toFixed(2)}</strong></div>
+                        <div>Cuotas: <strong style="color:var(--white)">${credit.paidInstallments}/${credit.numberOfInstallments}</strong></div>
+                        <div style="grid-column: span 2;">Vence: <strong style="color:${isOverdue ? 'var(--danger)' : 'var(--white)'}">${new Date(credit.nextDueDate).toLocaleDateString('es-VE')}</strong></div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+                        <button class="btn-copy" style="background:var(--info); padding: 8px; font-size: 0.8rem;" 
+                                onclick="sendPaymentDetailsToClient('${credit.creditId}')">
+                            💳 Datos
+                        </button>
+                        <button class="btn-copy" style="background:var(--ws-green); padding: 8px; font-size: 0.8rem;" 
+                                onclick="registerCreditPayment('${credit.creditId}')">
+                            💵 Abonar
+                        </button>
+                        <button class="btn-copy" style="background:rgba(255,255,255,0.1); padding: 8px; font-size: 0.8rem;" 
+                                onclick="showCreditDetails('${credit.creditId}')">
+                            👁️
+                        </button>
+                    </div>
+                    <button class="btn-copy" style="background:var(--warning); color: #111; margin-top: 6px; padding: 8px; font-size: 0.8rem; width: 100%;" 
+                            onclick="sendManualReminder('${credit.creditId}')">
+                        📲 Recordatorio
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>📂 Cartera de Créditos</h3>
+                <button class="close-btn" onclick="closeCreditsPanel()">×</button>
+            </div>
+
+            <div style="padding: 15px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center; 
+                        border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="background:rgba(255,193,7,0.1); padding:12px; border-radius:8px; border: 1px solid var(--warning);">
+                    <div style="font-size:0.75rem; color:var(--gray-text); margin-bottom: 4px;">Por Cobrar</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:var(--warning);">$${stats.totalActiveMoney.toFixed(2)}</div>
+                </div>
+                <div style="background:rgba(37,211,102,0.1); padding:12px; border-radius:8px; border: 1px solid var(--ws-green);">
+                    <div style="font-size:0.75rem; color:var(--gray-text); margin-bottom: 4px;">Activos</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:var(--ws-green);">${stats.activeCredits}</div>
+                </div>
+                <div style="background:rgba(224,79,94,0.1); padding:12px; border-radius:8px; border: 1px solid var(--danger);">
+                    <div style="font-size:0.75rem; color:var(--gray-text); margin-bottom: 4px;">Vencidos</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:var(--danger);">${stats.overdueCredits}</div>
+                </div>
+            </div>
+
+            <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button class="btn-copy" style="width: 100%; background: var(--pago-movil); padding: 12px; font-weight: 600;"
+                        onclick="closeCreditsPanel(); openCreditConciliation();">
+                    💳 Conciliar Pago Recibido
+                </button>
+            </div>
+
+            <div class="modal-body" style="text-align:left; padding: 15px;">
+                ${creditsHTML}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function closeCreditsPanel() {
+    const modal = document.getElementById('credits-panel-modal');
+    if (modal) modal.remove();
+}
+
+function sendManualReminder(creditId) {
+    const credit = creditManager.getCredit(creditId);
+    if (!credit) return;
+
+    const isOverdue = new Date() > new Date(credit.nextDueDate);
+    const message = isOverdue 
+    ? CreditWhatsAppMessages.generateOverdueMessage(credit)
+    : CreditWhatsAppMessages.generateReminderMessage(credit, 0);
+WhatsAppManager.openWhatsApp(message, null);
+UI.showToast('📤 Abriendo WhatsApp...');
+}
+function registerCreditPayment(creditId) {
+const credit = creditManager.getCredit(creditId);
+if (!credit) return;
+const modal = document.createElement('div');
+modal.className = 'modal-overlay active';
+modal.id = 'register-payment-modal';
+
+modal.innerHTML = `
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3>💵 Registrar Pago</h3>
+            <button class="close-btn" onclick="closeRegisterPaymentModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <div style="background: rgba(37,211,102,0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--ws-green);">
+                <p style="margin: 5px 0;"><strong>Cliente:</strong> ${credit.clientName}</p>
+                <p style="margin: 5px 0;"><strong>Saldo:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${credit.pendingAmount.toFixed(2)}</p>
+                <p style="margin: 5px 0;"><strong>Cuota:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${credit.installmentAmount.toFixed(2)}</p>
+            </div>
+
+            <div class="form-group">
+                <label>💰 Monto del Pago *</label>
+                <input type="number" id="payment-amount" 
+                       value="${credit.installmentAmount.toFixed(2)}" 
+                       step="0.01" min="0.01" 
+                       max="${credit.pendingAmount}" required>
+            </div>
+
+            <div class="form-group">
+                <label>💳 Método de Pago</label>
+                <select id="payment-method">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="pago-movil">Pago Móvil</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="divisa">Divisa (USD)</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="confirmCreditPayment('${creditId}')" 
+                    style="width: 100%; padding: 12px;">
+                ✅ Confirmar Pago
+            </button>
+        </div>
+    </div>
+`;
+
+document.body.appendChild(modal);
+}
+function closeRegisterPaymentModal() {
+const modal = document.getElementById('register-payment-modal');
+if (modal) modal.remove();
+}
+function confirmCreditPayment(creditId) {
+const amount = parseFloat(document.getElementById('payment-amount').value);
+const method = document.getElementById('payment-method').value;
+if (!amount || amount <= 0) {
+    UI.showToast('⚠️ Monto inválido');
+    return;
+}
+
+const credit = creditManager.getCredit(creditId);
+if (amount > credit.pendingAmount) {
+    UI.showToast('⚠️ Monto mayor al saldo');
+    return;
+}
+
+const result = creditManager.registerPayment(creditId, amount, method);
+
+if (result) {
+    const message = CreditWhatsAppMessages.generatePaymentMessage(result.credit, result.payment);
+    WhatsAppManager.openWhatsApp(message, null);
+
+    UI.showToast(`✅ Pago registrado: ${result.credit.currency === 'USD' ? '$' : 'Bs.'}${amount.toFixed(2)}`);
+
+    closeRegisterPaymentModal();
+    closeCreditsPanel();
+    showCreditsPanel();
+}
+}
+function showCreditDetails(creditId) {
+const credit = creditManager.getCredit(creditId);
+if (!credit) return;
+let paymentsHTML = '';
+if (credit.payments.length > 0) {
+    paymentsHTML = credit.payments.map(payment => `
+        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; 
+                    display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong style="color: var(--ws-green);">${credit.currency === 'USD' ? '$' : 'Bs.'}${payment.amount.toFixed(2)}</strong>
+                <span style="font-size: 0.8rem; color: var(--gray-text); margin-left: 8px;">${payment.method}</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--gray-text);">${new Date(payment.date).toLocaleDateString('es-VE')}</div>
+        </div>
+    `).join('');
+} else {
+    paymentsHTML = '<p style="text-align: center; color: var(--gray-text); padding: 20px;">No hay pagos registrados</p>';
+}
+
+let productsHTML = '';
+if (credit.products && credit.products.length > 0) {
+    productsHTML = credit.products.map(p => `
+        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin-bottom: 6px;
+                    display: flex; justify-content: space-between;">
+            <span>${p.name} x${p.quantity}</span>
+            <span style="font-weight: 600;">${credit.currency === 'USD' ? '$' : 'Bs.'}${(p.price * p.quantity).toFixed(2)}</span>
+        </div>
+    `).join('');
+}
+
+const modal = document.createElement('div');
+modal.className = 'modal-overlay active';
+modal.id = 'credit-details-modal';
+
+modal.innerHTML = `
+    <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h3>📋 Detalles del Crédito</h3>
+            <button class="close-btn" onclick="closeCreditDetailsModal()">×</button>
+        </div>
+        
+        <div class="modal-body" style="padding: 20px;">
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">👤 Cliente</h4>
+                <p style="margin: 5px 0;"><strong>Nombre:</strong> ${credit.clientName}</p>
+                <p style="margin: 5px 0;"><strong>Teléfono:</strong> ${credit.clientPhone}</p>
+            </div>
+
+            ${productsHTML ? `
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">📦 Productos</h4>
+                ${productsHTML}
+            </div>
+            ` : ''}
+
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">💰 Financiero</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                    <p><strong>Total:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${credit.totalAmount.toFixed(2)}</p>
+                    <p><strong>Pagado:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${(credit.totalAmount - credit.pendingAmount).toFixed(2)}</p>
+                    <p><strong>Pendiente:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${credit.pendingAmount.toFixed(2)}</p>
+                    <p><strong>Cuotas:</strong> ${credit.paidInstallments}/${credit.numberOfInstallments}</p>
+                    <p style="grid-column: span 2;"><strong>Valor cuota:</strong> ${credit.currency === 'USD' ? '$' : 'Bs.'}${credit.installmentAmount.toFixed(2)} (${credit.frequency})</p>
+                </div>
+            </div>
+
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">📅 Fechas</h4>
+                <p style="margin: 5px 0;"><strong>Creado:</strong> ${new Date(credit.createdDate).toLocaleDateString('es-VE')}</p>
+                <p style="margin: 5px 0;"><strong>Próximo vencimiento:</strong> ${new Date(credit.nextDueDate).toLocaleDateString('es-VE')}</p>
+                ${credit.lastPaymentDate ? `<p style="margin: 5px 0;"><strong>Último pago:</strong> ${new Date(credit.lastPaymentDate).toLocaleDateString('es-VE')}</p>` : ''}
+            </div>
+
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">📦 Entrega</h4>
+                <p><strong>Estado:</strong> ${credit.deliveryStatus === 'delivered' ? '✅ Entregado' : '⏳ Pendiente de entrega'}</p>
+            </div>
+
+            ${credit.notes ? `
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h4 style="color: var(--info); margin-bottom: 10px;">📝 Notas</h4>
+                <p style="color: var(--gray-text);">${credit.notes}</p>
+            </div>
+            ` : ''}
+
+            <div>
+                <h4 style="color: var(--info); margin-bottom: 10px;">💳 Historial de Pagos</h4>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${paymentsHTML}
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button class="btn-copy" style="flex: 1; min-width: 120px; background: var(--ws-green);" 
+                        onclick="closeCreditDetailsModal(); registerCreditPayment('${creditId}')">
+                    💵 Registrar Pago
+                </button>
+                <button class="btn-copy" style="flex: 1; min-width: 120px; background: var(--info);" 
+                        onclick="sendManualReminder('${creditId}')">
+                    📩 Recordatorio
+                </button>
+                <button class="btn-copy" style="flex: 1; min-width: 120px; background: var(--danger);" 
+                        onclick="deleteCreditConfirm('${creditId}')">
+                    🗑️ Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+`;
+
+document.body.appendChild(modal);
+}
+function closeCreditDetailsModal() {
+const modal = document.getElementById('credit-details-modal');
+if (modal) modal.remove();
+}
+function deleteCreditConfirm(creditId) {
+if (confirm('⚠️ ¿Eliminar este crédito?\nEsta acción no se puede deshacer.')) {
+creditManager.deleteCredit(creditId);
+UI.showToast('✅ Crédito eliminado');
+closeCreditDetailsModal();
+closeCreditsPanel();
+showCreditsPanel();
+}
+}
+// ==========================================
+// CONCILIACIÓN RÁPIDA DE PAGOS A CRÉDITO
+// ==========================================
+function openCreditConciliation() {
+const modal = document.createElement('div');
+modal.className = 'modal-overlay active';
+modal.id = 'credit-conciliation-modal';
+const pendingCredits = creditManager.getActiveCredits();
+
+let creditsListHTML = '';
+if (pendingCredits.length === 0) {
+    creditsListHTML = '<div class="empty-state"><p>✅ No hay créditos pendientes</p></div>';
+} else {
+    creditsListHTML = pendingCredits.map(credit => {
+        const isOverdue = credit.status === 'overdue';
+        const symbol = credit.currency === 'USD' ? '$' : 'Bs.';
+        return `
+            <div class="pending-tx-item" style="background: ${isOverdue ? 'rgba(224,79,94,0.15)' : 'rgba(37,211,102,0.1)'}; 
+                                                 border-color: ${isOverdue ? 'var(--danger)' : 'var(--ws-green)'};"
+                 onclick="selectCreditForPayment('${credit.creditId}')">
+                <div style="text-align: left;">
+                    <strong>${credit.clientName}</strong>
+                    <small style="display: block; color: var(--gray-text);">${credit.creditId}</small>
+                    ${isOverdue ? '<span style="color: var(--danger); font-size: 0.7rem;">⚠️ VENCIDO</span>' : ''}
+                </div>
+                <span style="font-weight: 800; color: ${isOverdue ? 'var(--danger)' : 'var(--ws-green)'};">
+                    ${symbol}${credit.pendingAmount.toFixed(2)}
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+
+modal.innerHTML = `
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3>💳 Conciliar Pago a Crédito</h3>
+            <button class="close-btn" onclick="closeCreditConciliation()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <div style="margin-bottom: 20px;">
+                <p style="font-size: 0.85rem; color: var(--gray-text); margin-bottom: 10px;">
+                    Buscar por código de crédito:
+                </p>
+                <input type="text" id="credit-search-input" 
+                       placeholder="CR-XXXXXXXXXX-XXX" 
+                       style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); 
+                              background: #2a2d3a; color: var(--white); text-align: center; text-transform: uppercase;"
+                       onkeyup="if(event.key==='Enter') searchCreditById()">
+                <button class="btn-copy" style="margin-top: 8px;" onclick="searchCreditById()">
+                    🔍 Buscar
+                </button>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <p style="font-size: 0.85rem; color: var(--gray-text); margin-bottom: 10px;">
+                    O selecciona de la lista:
+                </p>
+                <div style="max-height: 50vh; overflow-y: auto;">
+                    ${creditsListHTML}
+                </div>
+            </div>
+
+            <div id="credit-payment-form" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div id="selected-credit-info" style="background: rgba(37,211,102,0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--ws-green);"></div>
+                
+                <div class="form-group">
+                    <label>💰 Monto Recibido *</label>
+                    <input type="number" id="credit-payment-amount" step="0.01" min="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>🔢 Referencia Pago Móvil (últimos 6 dígitos) *</label>
+                    <input type="text" id="credit-payment-reference" 
+                           maxlength="6" pattern="[0-9]{6}" 
+                           placeholder="XXXXXX" 
+                           style="text-align: center; letter-spacing: 3px;"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>💳 Método de Pago</label>
+                    <select id="credit-payment-method">
+                        <option value="pago-movil" selected>Pago Móvil</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="divisa">Divisa USD</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+
+                <input type="hidden" id="selected-credit-id">
+
+                <button class="btn-primary" onclick="confirmCreditPaymentConciliation()" 
+                        style="width: 100%; padding: 12px;">
+                    ✅ Confirmar Pago
+                </button>
+                <button class="btn-copy" style="margin-top: 8px;" onclick="backToCreditList()">
+                    ⬅️ Volver
+                </button>
+            </div>
+        </div>
+    </div>
+`;
+
+document.body.appendChild(modal);
+}
+function closeCreditConciliation() {
+const modal = document.getElementById('credit-conciliation-modal');
+if (modal) modal.remove();
+}
+function searchCreditById() {
+const searchInput = document.getElementById('credit-search-input');
+const creditId = searchInput.value.trim().toUpperCase();
+if (!creditId) {
+    UI.showToast('⚠️ Ingresa un código');
+    return;
+}
+
+const credit = creditManager.getCredit(creditId);
+
+if (!credit) {
+    UI.showToast('❌ Crédito no encontrado');
+    searchInput.value = '';
+    return;
+}
+
+if (credit.status === 'completed') {
+    UI.showToast('✅ Este crédito ya está completado');
+    return;
+}
+
+selectCreditForPayment(creditId);
+}
+function selectCreditForPayment(creditId) {
+const credit = creditManager.getCredit(creditId);
+if (!credit) return;
+const symbol = credit.currency === 'USD' ? '$' : 'Bs.';
+
+document.getElementById('selected-credit-id').value = creditId;
+document.getElementById('credit-payment-amount').value = credit.installmentAmount.toFixed(2);
+document.getElementById('credit-payment-reference').value = '';
+
+const infoDiv = document.getElementById('selected-credit-info');
+infoDiv.innerHTML = `
+    <p style="margin: 5px 0;"><strong>Cliente:</strong> ${credit.clientName}</p>
+    <p style="margin: 5px 0;"><strong>Código:</strong> ${credit.creditId}</p>
+    <p style="margin: 5px 0;"><strong>Saldo:</strong> ${symbol}${credit.pendingAmount.toFixed(2)}</p>
+    <p style="margin: 5px 0;"><strong>Cuota sugerida:</strong> ${symbol}${credit.installmentAmount.toFixed(2)}</p>
+`;
+
+document.querySelectorAll('.pending-tx-item').forEach(item => {
+    item.style.background = 'rgba(255,255,255,0.05)';
+});
+event.currentTarget.style.background = 'rgba(37,211,102,0.2)';
+
+document.getElementById('credit-payment-form').style.display = 'block';
+document.getElementById('credit-payment-amount').focus();
+}
+function backToCreditList() {
+document.getElementById('credit-payment-form').style.display = 'none';
+document.getElementById('credit-search-input').value = '';
+document.querySelectorAll('.pending-tx-item').forEach(item => {
+item.style.background = 'rgba(255,255,255,0.05)';
+});
+}
+function confirmCreditPaymentConciliation() {
+const creditId = document.getElementById('selected-credit-id').value;
+const amount = parseFloat(document.getElementById('credit-payment-amount').value);
+const reference = document.getElementById('credit-payment-reference').value.trim();
+const method = document.getElementById('credit-payment-method').value;
+if (!creditId) {
+    UI.showToast('⚠️ Selecciona un crédito');
+    return;
+}
+
+if (!amount || amount <= 0) {
+    UI.showToast('⚠️ Monto inválido');
+    return;
+}
+
+if (method === 'pago-movil' && (!/^\d{6}$/.test(reference))) {
+    UI.showToast('⚠️ Referencia debe ser 6 dígitos');
+    return;
+}
+
+const credit = creditManager.getCredit(creditId);
+if (!credit) return;
+
+if (amount > credit.pendingAmount) {
+    if (!confirm(`⚠️ El monto (${amount}) es mayor al saldo (${credit.pendingAmount})\n¿Continuar de todos modos?`)) {
+        return;
+    }
+}
+
+const result = creditManager.registerPayment(creditId, amount, method);
+
+if (result) {
+    const message = CreditWhatsAppMessages.generatePaymentMessage(result.credit, result.payment);
+    WhatsAppManager.openWhatsApp(message, null);
+
+    const symbol = result.credit.currency === 'USD' ? '$' : 'Bs.';
+    UI.showToast(`✅ Pago registrado: ${symbol}${amount.toFixed(2)}`);
+
+    closeCreditConciliation();
+    
+    if (result.credit.status === 'completed') {
+        setTimeout(() => {
+            alert(`🎉 ¡CRÉDITO COMPLETADO!\n\nCliente: ${result.credit.clientName}\nTotal pagado: ${symbol}${result.credit.totalAmount.toFixed(2)}\n\n${result.credit.deliveryStatus === 'pending' ? '📦 Recuerda entregar el producto' : ''}`);
+        }, 500);
+    }
+}
+}
+// ==========================================
+// SISTEMA DE RECORDATORIOS AUTOMÁTICOS
+// ==========================================
+class CreditReminderSystem {
+constructor() {
+this.checkReminders();
+setInterval(() => this.checkReminders(), 43200000); // 12 horas
+}
+checkReminders() {
+    const now = new Date();
+    const activeCredits = creditManager.getActiveCredits();
+
+    activeCredits.forEach(credit => {
+        const dueDate = new Date(credit.nextDueDate);
+        const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilDue === 3 && !this.wasReminderSentToday(credit)) {
+            this.sendAdvanceReminder(credit);
+        }
+        
+        if (daysUntilDue === 0 && !this.wasReminderSentToday(credit)) {
+            this.sendDueDateReminder(credit);
+        }
+        
+        if (daysUntilDue < 0 && Math.abs(daysUntilDue) % 3 === 0) {
+            if (!this.wasReminderSentToday(credit)) {
+                this.sendOverdueReminder(credit);
+            }
+        }
+    });
+}
+
+wasReminderSentToday(credit) {
+    if (!credit.lastReminderDate) return false;
+    
+    const lastReminder = new Date(credit.lastReminderDate);
+    const today = new Date();
+    
+    return lastReminder.toDateString() === today.toDateString();
+}
+
+sendAdvanceReminder(credit) {
+    const message = `📅 *RECORDATORIO*
+Hola ${credit.clientName}! 👋
+Te recordamos que tu próxima cuota vence en 3 días.
+💰 Monto: {credit.currency === 'USD' ? '
+' : 'Bs.'}${credit.installmentAmount.toFixed(2)}
+📅 Vence: ${new Date(credit.nextDueDate).toLocaleDateString('es-VE')}
+
+🆔 Código: ${credit.creditId}
+¡Gracias por tu preferencia! 🙏`;
+    this.queueReminder(credit.clientPhone, message);
+    
+    credit.lastReminderDate = new Date().toISOString();
+    creditManager.saveCredits();
+}
+
+sendDueDateReminder(credit) {
+    const message = CreditWhatsAppMessages.generateReminderMessage(credit, 0);
+    this.queueReminder(credit.clientPhone, message);
+    
+    credit.lastReminderDate = new Date().toISOString();
+    creditManager.saveCredits();
+}
+
+sendOverdueReminder(credit) {
+    const message = CreditWhatsAppMessages.generateOverdueMessage(credit);
+    this.queueReminder(credit.clientPhone, message);
+    
+    credit.lastReminderDate = new Date().toISOString();
+    creditManager.saveCredits();
+}
+
+queueReminder(phone, message) {
+    const reminders = JSON.parse(localStorage.getItem('pendingReminders') || '[]');
+    reminders.push({
+        phone,
+        message,
+        createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('pendingReminders', JSON.stringify(reminders));
+    
+    this.showReminderNotification();
+}
+
+showReminderNotification() {
+    const reminders = JSON.parse(localStorage.getItem('pendingReminders') || '[]');
+    if (reminders.length > 0) {
+        console.log(`Tienes ${reminders.length} recordatorios pendientes`);
+    }
+}
+
+getPendingReminders() {
+    return JSON.parse(localStorage.getItem('pendingReminders') || '[]');
+}
+
+clearPendingReminders() {
+    localStorage.setItem('pendingReminders', '[]');
+}
+
+sendPendingReminder(index) {
+    const reminders = this.getPendingReminders();
+    if (reminders[index]) {
+        const reminder = reminders[index];
+        const whatsappUrl = `https://wa.me/${reminder.phone}?text=${encodeURIComponent(reminder.message)}`;
+        window.open(whatsappUrl, '_blank');
+        
+        reminders.splice(index, 1);
+        localStorage.setItem('pendingReminders', JSON.stringify(reminders));
+    }
+}
+}
+const reminderSystem = new CreditReminderSystem();
+function showPendingReminders() {
+const reminders = reminderSystem.getPendingReminders();
+if (reminders.length === 0) {
+    alert('✅ No hay recordatorios pendientes');
+    return;
+}
+
+const modal = document.createElement('div');
+modal.className = 'modal-overlay active';
+modal.id = 'pending-reminders-modal';
+
+const remindersHTML = reminders.map((reminder, index) => `
+    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="flex-grow: 1;">
+            <strong style="color: var(--white);">📱 ${reminder.phone}</strong>
+            <p style="font-size: 0.85rem; color: var(--gray-text); margin: 5px 0;">${reminder.message.substring(0, 100)}...</p>
+            <small style="color: var(--gray-text);">${new Date(reminder.createdAt).toLocaleString('es-VE')}</small>
+        </div>
+        <button class="btn-copy" style="background: var(--ws-green); padding: 8px 12px; margin-left: 10px;" 
+                onclick="reminderSystem.sendPendingReminder(${index}); location.reload();">
+            📤 Enviar
+        </button>
+    </div>
+`).join('');
+
+modal.innerHTML = `
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3>📬 Recordatorios Pendientes (${reminders.length})</h3>
+            <button class="close-btn" onclick="closePendingRemindersModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            ${remindersHTML}
+            
+            <button class="btn-primary" onclick="sendAllReminders()" 
+                    style="width: 100%; margin-top: 15px; padding: 12px;">
+                📤 Enviar Todos
+            </button>
+        </div>
+    </div>
+`;
+
+document.body.appendChild(modal);
+}
+function closePendingRemindersModal() {
+const modal = document.getElementById('pending-reminders-modal');
+if (modal) modal.remove();
+}
+function sendAllReminders() {
+const reminders = reminderSystem.getPendingReminders();
+reminders.forEach((reminder, index) => {
+    setTimeout(() => {
+        reminderSystem.sendPendingReminder(0);
+    }, index * 2000);
+});
+alert(`📤 Enviando ${reminders.length} recordatorios...`);
+closePendingRemindersModal();
+}
+ // ============================================
+// INICIALIZACIÓN DEL SISTEMA
+// ============================================
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 Iniciando Web3 POS v5.2 - Secure Edition');
+    
+    // 1. Cargar configuración (ahora async por bcrypt)
+    await Config.load();
+    
+    // 2. Cachear elementos UI
+    UI.cacheElements();
+    UI.updateDisplay();
+    UI.updateStats();
+    
+    // 3. Iniciar actualización automática de tasa
+    await RateUpdater.autoUpdate();
+    
+    // 4. Programar backup automático
+    BackupManager.scheduleAutoBackup();
+    
+    // 5. Solicitar permisos de notificación
+    NotificationManager.requestPermission();
+    
+    console.log('✅ Sistema inicializado correctamente');
+});
+   function handleBackupRestore(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const jsonString = e.target.result;
+        const success = await BackupManager.importBackup(jsonString);
+        if (success) {
+            setTimeout(() => location.reload(), 2000);
+        }
+    };
+    reader.readAsText(file);
+}
+// Cerrar sesión
+async function handleLogout() {
+  if (confirm('¿Cerrar sesión?')) {
+    await SupabaseAuth.signOut();
+    window.location.href = '04_login.html';
+  }
+}
+    </script>
+</body>
+</html>

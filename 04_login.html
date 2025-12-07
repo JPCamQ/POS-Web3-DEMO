@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - POS Web3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+        }
+
+        .alert-success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+        }
+
+        .alert-info {
+            background: #def;
+            border: 1px solid #bce;
+            color: #36c;
+        }
+
+        #loginForm, #signupForm {
+            display: none;
+        }
+
+        #loginForm.active, #signupForm.active {
+            display: block;
+        }
+
+        .loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🚀 POS</h1>
+            <p>Punto de Venta en la Nube</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- FORMULARIO DE LOGIN -->
+        <form id="loginForm" class="active">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="tu@email.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Contraseña</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">Iniciar Sesión</button>
+
+            <div class="toggle-form">
+                ¿No tienes cuenta? <a onclick="toggleForms()">Regístrate aquí</a>
+            </div>
+        </form>
+
+        <!-- FORMULARIO DE REGISTRO -->
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" placeholder="tu@email.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="signupPassword">Contraseña</label>
+                <input type="password" id="signupPassword" placeholder="••••••••" required autocomplete="new-password" minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="businessName">Nombre del Negocio</label>
+                <input type="text" id="businessName" placeholder="Mi Tienda" required>
+            </div>
+
+            <button type="submit" class="btn" id="signupBtn">Registrarse</button>
+
+            <div class="toggle-form">
+                ¿Ya tienes cuenta? <a onclick="toggleForms()">Inicia sesión aquí</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ============================================================================
+        // CONFIGURACIÓN - REEMPLAZA CON TUS CREDENCIALES
+        // ============================================================================
+        const SUPABASE_URL = 'https://bcysmnqojlmqbbrsfxbk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjeXNtbnFvamxtcWJicnNmeGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNzQ0MDAsImV4cCI6MjA4MDY1MDQwMH0.tFOXuVFwVbmMF6_tQERqgazPnoDND1FgOOFrUjtbetY';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================================================
+        // FUNCIONES DE UI
+        // ============================================================================
+
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if (loginForm.classList.contains('active')) {
+                loginForm.classList.remove('active');
+                signupForm.classList.add('active');
+            } else {
+                signupForm.classList.remove('active');
+                loginForm.classList.add('active');
+            }
+
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        // ============================================================================
+        // LOGIN
+        // ============================================================================
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            btn.textContent = 'Iniciando';
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                showAlert('✅ Bienvenido!', 'success');
+
+                // Redirigir al POS
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+                btn.classList.remove('loading');
+                btn.textContent = 'Iniciar Sesión';
+            }
+        });
+
+        // ============================================================================
+        // REGISTRO
+        // ============================================================================
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('signupBtn');
+            btn.classList.add('loading');
+            btn.textContent = 'Registrando';
+
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const businessName = document.getElementById('businessName').value;
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            business_name: businessName
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                showAlert('✅ Registro exitoso! Verifica tu email para confirmar tu cuenta.', 'success');
+
+                // Cambiar a login después de 3 segundos
+                setTimeout(() => {
+                    toggleForms();
+                    document.getElementById('loginEmail').value = email;
+                }, 3000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.textContent = 'Registrarse';
+            }
+        });
+
+        // ============================================================================
+        // VERIFICAR SI YA HAY SESIÓN ACTIVA
+        // ============================================================================
+
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // Ya está autenticado, redirigir al POS
+                window.location.href = 'index.html';
+            }
+        }
+
+        checkSession();
+    </script>
+</body>
+</html>
