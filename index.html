@@ -3203,10 +3203,19 @@ const HistoryManager = {
     const keypadArea = document.querySelector('.keypad-area');
     
     const handleKeyPress = (e) => {
-      // Prevenir doble disparo en móvil
-      if (e.type === 'touchstart') {
-        e.preventDefault();
-      }
+  // ✅ FIX: Evitar doble procesamiento sin bloquear efectos visuales
+  if (e.type === 'touchstart') {
+    // Marcar que ya procesamos el touch
+    if (e.target._touchHandled) return;
+    e.target._touchHandled = true;
+    setTimeout(() => delete e.target._touchHandled, 300);
+  }
+  
+  // Si es click Y ya hubo touchstart, salir
+  if (e.type === 'click' && e.target._touchHandled) {
+    return;
+  }
+
       
       // Buscar el botón aunque se toque un hijo (span, etc)
       const key = e.target.closest('.key');
