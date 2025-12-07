@@ -121,71 +121,14 @@
         }
 
         .key {
-  background: #202020;
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  font-size: 1.5rem;
-  font-weight: 600;
-  padding: 16px 0;
-  cursor: pointer;
-  /* ⬇️ TRANSICIÓN ESPECÍFICA - NO "all" */
-  transition: background 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  touch-action: manipulation;
-  /* ⬇️ EVITAR QUE CLICKS EN ELEMENTOS INTERNOS CAUSEN PROBLEMAS */
-  pointer-events: auto;
-}
+            background: #202020; color: var(--white); border: none;
+            border-radius: 10px; font-size: 1.5rem; font-weight: 600;
+            padding: 16px 0; cursor: pointer; transition: all 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .key:hover { background: #282828; }
+        .key:active { transform: scale(0.98); background: #303030; }
 
-/* Solo los elementos internos (span, small) no deben capturar clicks */
-.key * {
-  pointer-events: none;
-}
-
-/* Hover solo en desktop */
-@media (hover: hover) {
-  .key:hover { 
-    background: #282828; 
-  }
-}
-
-/* ⬇️ ESTADO ACTIVO CON RESET AUTOMÁTICO */
-.key:active { 
-  transform: scale(0.98); 
-  background: #303030;
-  transition: none; /* Sin transición al presionar */
-}
-
-/* ⬇️ RESET INMEDIATO AL SOLTAR */
-.key:not(:active) {
-  transform: scale(1);
-}
-
-/* Fix específico para botón PAGAR */
-.pay-key {
-  grid-column: span 2; 
-  background: linear-gradient(90deg, var(--ws-green), var(--ws-dark));
-  font-size: 1.2rem; 
-  font-weight: 800;
-  /* ⬇️ OVERRIDE del estado active */
-  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
-}
-
-.pay-key:active {
-  background: linear-gradient(90deg, #1ea854, #0f7a6a) !important;
-  transform: scale(0.98) !important;
-  box-shadow: 0 2px 8px rgba(37,211,102,0.6) !important;
-}
-
-.pay-key:not(:active) {
-  transform: scale(1);
-}
-
-@media (hover: hover) {
-  .pay-key:hover { 
-    box-shadow: 0 4px 10px rgba(37,211,102,0.4); 
-  }
-}
         .num-key { background: #2a2a2a; }
         .num-key:hover { background: #333; }
 
@@ -3255,60 +3198,24 @@ const HistoryManager = {
     };
 
     const EventHandlers = {
-    init() {
-    // ✅ Teclado mejorado con feedback visual
-    const keypadArea = document.querySelector('.keypad-area');
-    
-    keypadArea.addEventListener('touchstart', (e) => {
-      const key = e.target.closest('.key');
-      if (!key) return;
-      
-      // Añadir clase visual temporal
-      key.style.background = '#303030';
-      key.style.transform = 'scale(0.98)';
-    }, { passive: true });
-    
-    keypadArea.addEventListener('touchend', (e) => {
-      const key = e.target.closest('.key');
-      if (!key) return;
-      
-      // Restaurar estilo inmediatamente
-      setTimeout(() => {
-        key.style.background = '';
-        key.style.transform = '';
-      }, 100);
-    }, { passive: true });
-    
-    keypadArea.addEventListener('click', (e) => {
-      const key = e.target.closest('.key');
-      if (!key) return;
-      
-      // Prevenir múltiples clicks
-      if (key.disabled) return;
-      key.disabled = true;
-      setTimeout(() => key.disabled = false, 200);
-      
-      Auth.registerActivity();
-      Utils.vibrate(10);
-      
-      const value = key.dataset.value;
-      const action = key.dataset.action;
-      
-      if (value !== undefined) {
-        this.handleNumericInput(value);
-      } else if (action) {
-        this.handleAction(action);
-      }
-      
-      UI.updateDisplay();
-      
-      // Forzar reset visual
-      key.blur();
-    });
+        init() {
+            document.querySelector('.keypad-area').addEventListener('click', (e) => {
+                const key = e.target.closest('[data-value], [data-action]');
+                if (!key) return;
 
-    // Teclado PIN (NO TOCAR)
-    document.getElementById('pinKeypad').addEventListener('click', (e) => {
+                Auth.registerActivity();
+                Utils.vibrate(10);
 
+                const value = key.dataset.value;
+                const action = key.dataset.action;
+
+                if (value !== undefined) this.handleNumericInput(value);
+                else if (action) this.handleAction(action);
+
+                UI.updateDisplay();
+            });
+
+            document.getElementById('pinKeypad').addEventListener('click', (e) => {
                 const key = e.target.closest('.pin-key');
                 if (!key) return;
 
@@ -4865,7 +4772,6 @@ async function handleLogout() {
     window.location.href = '04_login.html';
   }
 }
-      
     </script>
 </body>
 </html>
