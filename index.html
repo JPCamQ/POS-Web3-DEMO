@@ -1490,13 +1490,16 @@ try {
 
 
 // Verificar al cargar la página
-window.addEventListener('DOMContentLoaded', async () => {
-  const isAuth = await checkAuth();
-  if (!isAuth) return; // Sale si no está autenticado
-  
-  // Si está autenticado, continuar con inicialización normal
-  console.log('🚀 Iniciando POS...');
+window.addEventListener('DOMContentLoaded', () => {
+    // Solo preparar UI, no llamar todavía a checkAuth
+    console.log('Cargando POS... esperando PIN');
+    UI.cacheElements();
+    Config.load();
+    UI.updateStats();
+    UI.updateDisplay();
+    Auth.lockSession(); // fuerza mostrar el modal de PIN al inicio
 });
+
 
     /**
      * WEB3 POS v5.1 - Config Fix & Mora Switch
@@ -2189,30 +2192,34 @@ const Config = {
             if (input.value.length === 4) this.authenticate();
         },
 
-        authenticate() {
-            const input = document.getElementById('pinInput');
-            const errorDiv = document.getElementById('pinError');
+        async authenticate() {
+    const input = document.getElementById('pinInput');
+    const errorDiv = document.getElementById('pinError');
 
-            if (Utils.validatePin(input.value, Config.pinHash)) {
-                
-                // Limpia el input y el error antes de cerrar el modal
-                input.value = '';
-                errorDiv.style.display = 'none';
+    if (await Utils.validatePin(input.value, Config.pinHash)) {
+        input.value = '';
+        errorDiv.style.display = 'none';
+        UI.closeModal('authModal');
 
-                UI.closeModal('authModal');
-                
-                // Establece el estado de sesión y actividad
-                POSState.sessionStart = Date.now();
-                POSState.lastActivity = Date.now();
-                
-                UI.showToast('✅ Sesión iniciada');
-            } else {
-                errorDiv.style.display = 'block';
-                input.value = '';
-                Utils.vibrate(100);
-                UI.showToast('❌ PIN incorrecto');
-            }
-        },
+        POSState.sessionStart = Date.now();
+        POSState.lastActivity = Date.now();
+        UI.showToast('Sesión iniciada');
+
+        // 🔐 Ahora sí: verificar sesión Supabase y sincronizar
+        const isAuth = await checkAuth();
+        if (!isAuth) {
+            UI.showToast('Error autenticando con Supabase');
+        } else {
+            console.log('Iniciando POS tras PIN + Supabase...');
+        }
+    } else {
+        errorDiv.style.display = 'block';
+        input.value = '';
+        Utils.vibrate(100);
+        UI.showToast('PIN incorrecto');
+    }
+},
+
 
         checkSessionTimeout() {
             if (!POSState.sessionStart) return;
