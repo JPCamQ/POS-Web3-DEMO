@@ -141,8 +141,6 @@
 
         .key:hover { background: #282828; }
         .key:active { transform: scale(0.98); background: #303030; }
-
-        /* ⬅️ AGREGAR AQUÍ */
 .key * {
   pointer-events: none;
 }
@@ -3217,10 +3215,9 @@ const HistoryManager = {
     };
 
     const EventHandlers = {
-  init() {
-    // ✅ SOLUCIÓN SIMPLE: Solo click, buscar .key directamente
+    init() {
+    // ✅ Teclado principal - VERSIÓN SIMPLE QUE FUNCIONA
     document.querySelector('.keypad-area').addEventListener('click', (e) => {
-      // Buscar el botón .key (funciona aunque toques un hijo)
       const key = e.target.closest('.key');
       if (!key) return;
       
@@ -3239,13 +3236,9 @@ const HistoryManager = {
       UI.updateDisplay();
     });
 
-    
-    // Escuchar AMBOS eventos (táctil + click)
-    keypadArea.addEventListener('click', handleKeyPress);
-    keypadArea.addEventListener('touchstart', handleKeyPress, { passive: false });
+    // Teclado PIN (NO TOCAR)
+    document.getElementById('pinKeypad').addEventListener('click', (e) => {
 
-
-            document.getElementById('pinKeypad').addEventListener('click', (e) => {
                 const key = e.target.closest('.pin-key');
                 if (!key) return;
 
