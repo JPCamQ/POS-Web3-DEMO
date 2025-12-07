@@ -4865,6 +4865,41 @@ async function handleLogout() {
     window.location.href = '04_login.html';
   }
 }
+        // 🔍 DIAGNÓSTICO - BORRAR DESPUÉS
+console.log('🔍 Iniciando diagnóstico del teclado...');
+
+document.addEventListener('DOMContentLoaded', () => {
+  const keypadArea = document.querySelector('.keypad-area');
+  
+  if (!keypadArea) {
+    console.error('❌ No se encontró .keypad-area');
+    return;
+  }
+  
+  console.log('✅ keypad-area encontrado');
+  
+  // Test de todos los eventos
+  keypadArea.addEventListener('touchstart', (e) => {
+    console.log('👆 TOUCHSTART detectado');
+    const key = e.target.closest('.key');
+    if (key) {
+      console.log('🎯 Key encontrado:', key.dataset.value || key.dataset.action);
+    }
+  });
+  
+  keypadArea.addEventListener('touchend', (e) => {
+    console.log('👆 TOUCHEND detectado');
+  });
+  
+  keypadArea.addEventListener('click', (e) => {
+    console.log('🖱️ CLICK detectado');
+    const key = e.target.closest('.key');
+    if (key) {
+      console.log('🎯 Key en click:', key.dataset.value || key.dataset.action);
+      console.log('🔍 Acción:', key.dataset.action);
+    }
+  });
+});
     </script>
 </body>
 </html>
