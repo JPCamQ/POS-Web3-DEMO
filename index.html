@@ -3199,9 +3199,9 @@ const HistoryManager = {
 
     const EventHandlers = {
         init() {
-            document.querySelector('.keypad-area').addEventListener('click', (e) => {
-                const key = e.target.closest('[data-value], [data-action]');
-                if (!key) return;
+    document.querySelector('.keypad-area').addEventListener('click', (e) => {
+        const key = e.target.closest('.key');  // ✅ ESTO
+
 
                 Auth.registerActivity();
                 Utils.vibrate(10);
