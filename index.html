@@ -1266,13 +1266,37 @@
 async function checkAuth() {
   const session = await SupabaseAuth.getSession();
   if (!session) {
-    // No hay sesión, redirigir a login
     window.location.href = '04_login.html';
     return false;
   }
   console.log('✅ Usuario autenticado:', session.user.email);
+  
+  // Sincronizar transacciones al iniciar sesión
+  try {
+    const { data } = await SupabaseTransactions.getAll();
+    if (data && data.length > 0) {
+      const txs = data.map(tx => ({
+        amount: tx.amount,
+        finalAmountVES: tx.final_amount_ves,
+        txHash: tx.tx_hash,
+        timestamp: new Date(tx.created_at).getTime(),
+        status: tx.status,
+        token: tx.payment_method || 'CASH',
+        transactionId: tx.transaction_id,
+        moraDays: tx.mora_days || 0,
+        moraAmountVES: tx.mora_amount_ves || 0,
+        moraApplied: tx.mora_applied || false
+      }));
+      SecureStorage.setItem('transactions', txs);
+      console.log('✅ Sincronizado:', txs.length, 'ventas');
+    }
+  } catch (error) {
+    console.log('Error sincronizando:', error);
+  }
+  
   return true;
 }
+
 
 // Verificar al cargar la página
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1434,26 +1458,35 @@ const Storage = {
     return SecureStorage.getItem('transactions', []);
   },
 
-               async getTransactions() {
-    // Intentar desde Supabase primero
-    const { data } = await SupabaseTransactions.getAll();
-    if (data && data.length > 0) {
-        return data.map(tx => ({
+                async saveTransaction(tx) {
+          const supabaseTx = {
+            transaction_id: tx.transactionId,
             amount: tx.amount,
-            finalAmountVES: tx.final_amount_ves,
-            txHash: tx.tx_hash,
-            timestamp: new Date(tx.created_at).getTime(),
-            status: tx.status,
-            token: tx.payment_method || 'CASH',
-            transactionId: tx.transaction_id,
-            moraDays: tx.mora_days || 0,
-            moraAmountVES: tx.mora_amount_ves || 0,
-            moraApplied: tx.mora_applied || false
-        }));
-    }
-    // Fallback a LocalStorage
-    return SecureStorage.getItem('transactions', []);
-},
+            amount_usd: tx.amount,
+            final_amount_ves: tx.finalAmountVES || Calculations.toVES(tx.amount),
+            payment_method: tx.token || 'CASH',
+            token: tx.token || 'USD',
+            tx_hash: tx.txHash,
+            status: tx.status || 'confirmed',
+            mora_applied: tx.moraApplied || false,
+            mora_days: tx.moraDays || 0,
+            mora_amount_ves: tx.moraAmountVES || 0
+          };
+
+          const result = await SupabaseTransactions.create(supabaseTx);
+          
+          if (result.success) {
+            console.log('✅ Transacción guardada en Supabase');
+            let txs = SecureStorage.getItem('transactions', []);
+            txs.unshift(tx);
+            if (txs.length > 100) txs = txs.slice(0, 100);
+            SecureStorage.setItem('transactions', txs);
+            UI.updateStats();
+          } else {
+            console.error('❌ Error:', result.error);
+            UI.showToast('Error guardando venta');
+          }
+        },
 
 
         deleteTransaction(txId) {
