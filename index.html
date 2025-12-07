@@ -39,11 +39,22 @@
             .pin-key { background: #f0f0f0; color: #212529; }
         }
 
-        *, *::before, *::after { 
-            margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+        *, *::before, *::after {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* ✅ FIX: Permitir selección en inputs */
+input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
         input, textarea, .address-value, .crypto-value, .tx-hash { user-select: text; }
 
         body {
@@ -121,11 +132,29 @@
         }
 
         .key {
-            background: #202020; color: var(--white); border: none;
-            border-radius: 10px; font-size: 1.5rem; font-weight: 600;
-            padding: 16px 0; cursor: pointer; transition: all 0.1s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
+    background: #202020; 
+    color: var(--white); 
+    border: none;
+    border-radius: 10px; 
+    font-size: 1.5rem; 
+    font-weight: 600;
+    padding: 16px 0; 
+    cursor: pointer; 
+    transition: all 0.1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    
+    /* ✅ FIX ANDROID 11 */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ✅ FIX: Bloquear eventos en hijos */
+.key * {
+    pointer-events: none;
+}
+
         .key:hover { background: #282828; }
         .key:active { transform: scale(0.98); background: #303030; }
 
@@ -3199,21 +3228,31 @@ const HistoryManager = {
 
     const EventHandlers = {
         init() {
-    document.querySelector('.keypad-area').addEventListener('click', (e) => {
-        const key = e.target.closest('.key');  // ✅ ESTO
+    const keypadArea = document.querySelector('.keypad-area');
+    
+    // ✅ FIX: Función manejadora unificada
+    const handleKeyPress = (e) => {
+        e.preventDefault(); // Prevenir doble disparo
+        
+        const key = e.target.closest('.key');
+        if (!key) return;
+        
+        Auth.registerActivity();
+        Utils.vibrate(10);
+        
+        const value = key.dataset.value;
+        const action = key.dataset.action;
+        
+        if (value !== undefined) this.handleNumericInput(value);
+        else if (action) this.handleAction(action);
+        
+        UI.updateDisplay();
+    };
+    
+    // ✅ FIX ANDROID 11: Usar touchstart + click
+    keypadArea.addEventListener('touchstart', handleKeyPress, { passive: false });
+    keypadArea.addEventListener('click', handleKeyPress);
 
-
-                Auth.registerActivity();
-                Utils.vibrate(10);
-
-                const value = key.dataset.value;
-                const action = key.dataset.action;
-
-                if (value !== undefined) this.handleNumericInput(value);
-                else if (action) this.handleAction(action);
-
-                UI.updateDisplay();
-            });
 
             document.getElementById('pinKeypad').addEventListener('click', (e) => {
                 const key = e.target.closest('.pin-key');
