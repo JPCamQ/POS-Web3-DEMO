@@ -864,7 +864,7 @@
             <button class="key num-key" data-value="9">9</button>
             <button class="key discount-key" data-action="discount"><span id="discountPercent">10</span>% OFF</button>
 
-            <button class="key tip-key" data-action="tip">+<span id="tipPercent">15</span>% Tip</button>
+            <button class="key tip-key" data-action="history">Historial</button>
             <button class="key num-key" data-value="0">0</button>
             <button class="key" data-action="decimal">.</button>
             <button class="key token-key" data-action="change-crypto">
@@ -873,9 +873,9 @@
             </button>
 
             <button class="key pay-key" data-action="select-payment">PAGAR</button>
-            <button class="key" style="background: var(--info); font-size: 1rem; grid-column: span 2;" data-action="history">Historial / Exportar</button>
+            <button id="btnCredito" class="key" data-action="credito" style="background: var(--info); font-size: 1rem; grid-column: span 2;">CREDITO</button>
+           
         </div>
-    </div>
 
    
     <!-- Modales -->
@@ -1050,51 +1050,40 @@
                 <div class="modal-title">Historial</div>
                 <button class="close-btn" data-close="historyModal">×</button>
             </div>
+            
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                
                 <div id="historyView">
-    <div id="statsHistoryHeader"></div>
+                    <div id="statsHistoryHeader"></div>
 
-  <!-- Grupo 1: Reportes -->
-  <div class="button-group">
-    <button class="btn-copy" style="background: var(--ws-green);" 
-            data-action="share-daily-report">
-      📤 Reporte del Día
-    </button>
-    <button class="btn-copy" style="background: var(--pago-movil);" 
-            data-action="open-conciliation" data-source="historyModal">
-      🔍 Conciliar
-    </button>
-    <button class="btn-copy" data-action="export-csv">
-      🗂️ Exportar CSV
-    </button>
-    <button class="btn-copy" 
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" 
-            onclick="UI.closeModal('historyModal'); showCreditsPanel();">
-      📂 Cartera de Créditos
-    </button>
-  </div>
+                    <div class="button-group">
+                        <button class="btn-copy" style="background: var(--ws-green);" data-action="share-daily-report">
+                            📤 Reporte del Día
+                        </button>
+                        <button class="btn-copy" style="background: var(--pago-movil);" data-action="open-conciliation" data-source="historyModal">
+                            🔍 Conciliar
+                        </button>
+                        <button class="btn-copy" data-action="export-csv">
+                            🗂️ Exportar CSV
+                        </button>
+                    </div>
 
-  <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
 
-  <!-- Grupo 2: Acciones -->
-  <div class="button-group">
-    <button class="btn-copy" style="background: var(--ws-green);" 
-            onclick="RateUpdater.forceUpdate()">
-      🔄 Actualizar Tasa Ahora
-    </button>
-    <button class="btn-copy" 
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" 
-            onclick="BackupManager.downloadBackup()">
-      💾 Descargar Backup
-    </button>
-    <button class="btn-copy" style="background: var(--warning);" 
-            onclick="document.getElementById('restoreBackupInput').click()">
-      📥 Restaurar Backup
-    </button>
-  </div>
+                    <div class="button-group">
+                        <button class="btn-copy" style="background: var(--ws-green);" onclick="RateUpdater.forceUpdate()">
+                            🔄 Actualizar Tasa Ahora
+                        </button>
+                        <button class="btn-copy" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="BackupManager.downloadBackup()">
+                            💾 Descargar Backup
+                        </button>
+                        <button class="btn-copy" style="background: var(--warning);" onclick="document.getElementById('restoreBackupInput').click()">
+                            📥 Restaurar Backup
+                        </button>
+                    </div>
 
-  <div id="historyContent" style="text-align: left;"></div>
-</div>
+                    <div id="historyContent" style="text-align: left;"></div>
+                </div>
 
                 <div id="configView" style="display: none; text-align: left;">
                     <div class="config-group">
@@ -1200,23 +1189,30 @@
 
                     <button class="btn-copy" data-action="save-config">💾 Guardar</button>
                     <div class="warning-box" id="configWarning" style="display: none; margin-top: 10px;"></div>
-                     <!-- Input file oculto completamente -->
-                      <button class="btn-copy" style="background: var(--danger); margin-top: 10px;" 
-        onclick="handleLogout()">
-  🚪 Cerrar Sesión
-</button>
+                    
+                    <button class="btn-copy" style="background: var(--danger); margin-top: 10px;" onclick="handleLogout()">
+                        🚪 Cerrar Sesión
+                    </button>
 
-  <input type="file" id="restoreBackupInput" accept=".json" 
-         onchange="handleBackupRestore(this)"
-         style="position: absolute !important; 
-                width: 0 !important; 
-                height: 0 !important; 
-                opacity: 0 !important; 
-                pointer-events: none !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                overflow: hidden !important; 
-                left: -9999px !important;">
+                    <input type="file" id="restoreBackupInput" accept=".json" onchange="handleBackupRestore(this)" style="display:none;">
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div id="modalMenuCreditos" class="modal-overlay">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <div class="modal-title">Créditos</div>
+                <button class="close-btn" onclick="document.getElementById('modalMenuCreditos').style.display='none'">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="button-group">
+                    <button id="btnMenuVentaCredito" class="pay-option-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        📊 Pago por Cuotas
+                    </button>
+                    <button id="btnMenuCarteraCreditos" class="pay-option-btn" style="background: var(--info); color: white;">
+                        📂 Cartera de Créditos
+                    </button>
                 </div>
             </div>
         </div>
@@ -1251,7 +1247,7 @@
     </div>
 
     <div id="toast" class="toast"></div>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- Bibliotecas de Seguridad -->
@@ -1303,6 +1299,7 @@ async function checkAuth() {
 window.addEventListener('DOMContentLoaded', async () => {
   const isAuth = await checkAuth();
   if (!isAuth) return; // Sale si no está autenticado
+  
   
   // Si está autenticado, continuar con inicialización normal
   console.log('🚀 Iniciando POS...');
@@ -3279,6 +3276,7 @@ const HistoryManager = {
                 if (e.key === 'Escape') {
                     ['cryptoPaymentModal', 'paymentSelectionModal', 'pagoMovilModal', 'pmStaticQrModal', 'pmConfirmModal', 'historyModal'].forEach(UI.closeModal);
                 }
+                
             });
 
             window.addEventListener('beforeunload', (e) => {
@@ -3320,28 +3318,31 @@ const HistoryManager = {
         },
 
         handleGlobalAction(action, element) {
-            switch (action) {
-                case 'authenticate': Auth.authenticate(); break;
-                case 'open-config': Settings.open(); break;
-                case 'save-config': Settings.save(); break;
-                case 'export-csv': HistoryManager.exportCSV(); break;
-                case 'share-daily-report': WhatsAppManager.shareDailyReport(); break;
-                case 'open-conciliation': Conciliation.open(element.dataset.source); break;
-                case 'quick-search': Conciliation.quickSearch(); break;
-                case 'paste-reference': Conciliation.pasteReference(); break;
-                case 'send-reminder': Conciliation.sendReminder(); break;
-                case 'confirm-conciliation': Conciliation.process(); break;
-                case 'back-to-list': Conciliation.backToList(); break;
-                case 'send-whatsapp': Payments.sendPMWhatsApp(); break;
-                case 'start-camera-scan': Conciliation.startCameraScan(); break;
-                case 'upload-qr-image': Conciliation.triggerFileUpload(); break;
-                case 'share-qr-image': WhatsAppManager.shareQrImage(); break;
-                case 'download-qr-image': WhatsAppManager.downloadQrImage(); break;
-                
-                // Nuevo: Acción para borrar transacción
-                case 'delete-tx':
-                    HistoryManager.attemptDelete(element.dataset.id, element);
-                    break;
+    switch (action) {
+        case 'authenticate': Auth.authenticate(); break;
+        case 'open-config': Settings.open(); break;
+        case 'save-config': Settings.save(); break;
+        case 'export-csv': HistoryManager.exportCSV(); break;
+        case 'share-daily-report': WhatsAppManager.shareDailyReport(); break;
+        case 'open-conciliation': Conciliation.open(element.dataset.source); break;
+        case 'quick-search': Conciliation.quickSearch(); break;
+        case 'paste-reference': Conciliation.pasteReference(); break;
+        case 'send-reminder': Conciliation.sendReminder(); break;
+        case 'confirm-conciliation': Conciliation.process(); break;
+        case 'back-to-list': Conciliation.backToList(); break;
+        case 'send-whatsapp': Payments.sendPMWhatsApp(); break;
+        case 'start-camera-scan': Conciliation.startCameraScan(); break;
+        case 'upload-qr-image': Conciliation.triggerFileUpload(); break;
+        case 'share-qr-image': WhatsAppManager.shareQrImage(); break;
+        case 'download-qr-image': WhatsAppManager.downloadQrImage(); break;
+        case 'delete-tx':
+            HistoryManager.attemptDelete(element.dataset.id, element);
+            break;
+        
+        // ⭐ NUEVO: Agregar este caso
+        case 'credito':
+            openCreditosMenu();
+            break;
             }
         },
 
@@ -3414,22 +3415,89 @@ const HistoryManager = {
     };
 
     // 7. INICIALIZACIÓN
-    window.addEventListener('load', () => {
-        Config.load();
-        UI.cacheElements();
-        EventHandlers.init();
-        UI.updateStats();
-        UI.updateDisplay();
+window.addEventListener('load', async () => {
+    const isAuth = await checkAuth();
+    if (!isAuth) return;
+    
+    await Config.load();
+    UI.cacheElements();
+    EventHandlers.init();
+    UI.updateStats();
+    UI.updateDisplay();
 
-        const activeTokens = Object.keys(Config.supportedTokens).filter(k => Config.supportedTokens[k].active);
-        POSState.currentCrypto = activeTokens[0] || 'USDT';
-        document.getElementById('tokenSymbolDisplay').textContent = POSState.currentCrypto;
+    const activeTokens = Object.keys(Config.supportedTokens).filter(k => Config.supportedTokens[k].active);
+    POSState.currentCrypto = activeTokens[0] || 'USDT';
+    document.getElementById('tokenSymbolDisplay').textContent = POSState.currentCrypto;
 
-        // Inicia el modal de autenticación
-        UI.openModal('authModal');
-        
-        console.log('✅ Web3 POS v5.1 - Config Fix & Mora Switch');
-    });
+    // ⭐ NUEVO: Event Listeners para módulo de créditos
+   // ... dentro del window.addEventListener('load', async () => { ...
+
+    // ⭐ LÓGICA DE CRÉDITOS: Enlazar botón con modal
+    const btnCredito = document.getElementById('btnCredito');
+    const modalMenuCreditos = document.getElementById('modalMenuCreditos');
+    const btnMenuVentaCredito = document.getElementById('btnMenuVentaCredito');
+    const btnMenuCarteraCreditos = document.getElementById('btnMenuCarteraCreditos');
+
+    // 1. Abrir el modal al hacer clic en CREDITO
+    if (btnCredito && modalMenuCreditos) {
+        btnCredito.addEventListener('click', () => {
+            Auth.registerActivity(); // Mantiene la sesión activa
+            // Usamos 'flex' porque tu CSS .modal-overlay.active usa flex, 
+            // pero como estamos manipulando display directo:
+            modalMenuCreditos.style.display = 'flex'; 
+            modalMenuCreditos.classList.add('active'); // Añadir clase active por si acaso
+        });
+    }
+
+    // 2. Botón "Pago por Cuotas" (Dentro del modal)
+    if (btnMenuVentaCredito) {
+        btnMenuVentaCredito.addEventListener('click', () => {
+            modalMenuCreditos.style.display = 'none'; // Cerrar menú
+            showPaymentModalWithCredit(); // Abrir función de venta
+        });
+    }
+
+    // 3. Botón "Cartera de Créditos" (Dentro del modal)
+    if (btnMenuCarteraCreditos) {
+        btnMenuCarteraCreditos.addEventListener('click', () => {
+            modalMenuCreditos.style.display = 'none'; // Cerrar menú
+            showCreditsPanel(); // Abrir panel de cartera
+        });
+    }
+
+    // 4. Cerrar modal al hacer clic fuera (Overlay)
+    if (modalMenuCreditos) {
+        modalMenuCreditos.addEventListener('click', (e) => {
+            if (e.target === modalMenuCreditos) {
+                modalMenuCreditos.style.display = 'none';
+            }
+        });
+    }
+
+// ... fin del window load
+
+    // Cerrar modal al hacer clic en el botón X
+    const btnCloseMenuCreditos = modalMenuCreditos?.querySelector('.btn-close');
+    if (btnCloseMenuCreditos) {
+        btnCloseMenuCreditos.addEventListener('click', () => {
+            cerrarModal('modalMenuCreditos');
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    if (modalMenuCreditos) {
+        modalMenuCreditos.addEventListener('click', (e) => {
+            if (e.target === modalMenuCreditos) {
+                cerrarModal('modalMenuCreditos');
+            }
+        });
+    }
+
+    // Inicia el modal de autenticación
+    UI.openModal('authModal');
+    
+    console.log('✅ Web3 POS v5.2 - Sistema de Créditos Integrado');
+});
 // ==========================================
 // MÓDULO DE CRÉDITOS Y PAGOS POR CUOTAS
 // Agregado: Diciembre 2025
@@ -4727,6 +4795,28 @@ reminders.forEach((reminder, index) => {
 alert(`📤 Enviando ${reminders.length} recordatorios...`);
 closePendingRemindersModal();
 }
+
+function openCreditosMenu() {
+    const modal = document.getElementById('modalMenuCreditos');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function cerrarModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function abrirVentaCredito() {
+    showPaymentModalWithCredit();
+}
+
+function abrirCarteraCreditos() {
+    showCreditsPanel();
+}
  // ============================================
 // INICIALIZACIÓN DEL SISTEMA
 // ============================================
@@ -4773,6 +4863,9 @@ async function handleLogout() {
     window.location.href = '04_login.html';
   }
 }
+
+
+
     </script>
 </body>
 </html>
