@@ -151,77 +151,70 @@
             flex-direction: column; line-height: 1.1;
         }
 
-        /* =========================================
-       MODALES TIPO APP (PANTALLA COMPLETA)
-       ========================================= */
-    .modal-overlay {
-        position: fixed; inset: 0; 
-        background: var(--bg-card-actual); /* Mismo fondo que la app */
-        z-index: 9990; 
-        display: none;
-        /* Alineación para llenar la pantalla */
-        align-items: stretch; 
-        justify-content: center;
-        padding: 0; /* Sin márgenes externos */
-        animation: fadeIn 0.2s ease-out;
-    }
-    
-    .modal-overlay.active { display: flex; }
+        /* MODALES */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(5px); z-index: 9990; display: none;
+            align-items: center; justify-content: center; animation: fadeIn 0.3s;
+            overflow-y: auto;
+        }
+        .modal-overlay.active { display: flex; }
 
-    .modal-content {
-        background: var(--bg-card-actual); 
-        color: var(--text-main);
-        width: 100% !important;      /* Ancho total */
-        height: 100% !important;     /* Alto total */
-        max-width: 100% !important;  /* Quitar límites */
-        max-height: 100% !important; /* Quitar límites */
-        border-radius: 0 !important; /* Sin esquinas redondas (es una pantalla) */
-        margin: 0 !important;        /* Sin márgenes */
-        border: none !important;     /* Sin bordes */
-        box-shadow: none !important; /* Sin sombra (ya ocupa todo) */
-        
-        /* Estructura Flexible para el scroll */
-        display: flex;
-        flex-direction: column;
-        animation: slideUp 0.3s ease-out;
-    }
+        .modal-content {
+            background: var(--card-bg); border-radius: 16px;
+            max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.3s;
+            margin: 20px 0;
+        }
 
-    /* Cabecera Fija arriba */
-    .modal-header {
-        padding: 15px 20px; 
-        border-bottom: 1px solid var(--border-color);
-        display: flex; justify-content: space-between; align-items: center;
-        flex-shrink: 0; /* No se encoge */
-        background: var(--bg-card-actual); /* Asegurar fondo */
-    }
+        .modal-header {
+            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
 
-    .modal-title { 
-        font-size: 1.3rem; font-weight: 700; flex-grow: 1; text-align: center; 
-    }
+        .modal-title {
+            font-size: 1.2rem; font-weight: 700; flex-grow: 1; text-align: center;
+        }
 
-    /* Botón X más grande y fácil de tocar */
-    .close-btn {
-        background: transparent; border: none; color: var(--text-main);
-        width: 40px; height: 40px; font-size: 2rem;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; margin-left: 10px;
-    }
+        .close-btn {
+            background: rgba(255,255,255,0.1); border: none; color: var(--white);
+            width: 32px; height: 32px; border-radius: 50%; font-size: 1.5rem;
+            cursor: pointer; transition: all 0.2s; margin-left: 10px;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
 
-    /* Cuerpo con Scroll (Lo que sobra de pantalla) */
-    .modal-body { 
-        padding: 20px; 
-        text-align: center;
-        flex-grow: 1;       /* Ocupa todo el espacio restante */
-        overflow-y: auto;   /* Scroll solo aquí si es necesario */
-        padding-bottom: 50px; /* Espacio extra abajo */
-    }
+        .modal-body { padding: 20px; text-align: center; }
 
-    /* Ajuste para que la animación parezca que la nueva pantalla "sube" */
-    @keyframes slideUp { 
-        from { transform: translateY(100%); opacity: 1; } 
-        to { transform: translateY(0); opacity: 1; } 
-    }
+        .crypto-value {
+            font-size: 1.8rem; font-weight: 900; color: var(--ws-green);
+            background: rgba(37,211,102,0.1); padding: 8px; border-radius: 8px; cursor: pointer;
+        }
 
+        .qr-container {
+            background: var(--white); padding: 15px; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            margin: 20px auto; max-width: 250px; width: 100%;
+        }
+        .qr-container img, .qr-container canvas { display: block; max-width: 100%; height: auto; }
+
+        .address-section {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 20px;
+        }
+
+        .address-label {
+            font-size: 0.7rem; color: var(--gray-text); margin-bottom: 8px; display: block;
+        }
+
+        .address-value {
+            font-size: 0.7rem; color: var(--white); font-family: monospace;
+            word-break: break-all; margin-bottom: 12px; display: block;
+        }
+
+        .btn-copy {
+            width: 100%; padding: 10px; border: none; background: var(--copy-btn);
+            color: var(--white); border-radius: 6px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
         /* Agrupación de botones */
   .button-group {
     display: flex;
@@ -4085,11 +4078,13 @@ function showPaymentModalWithCredit() {
                 <div class="form-group">
                     <label>📊 Número de Cuotas *</label>
                     <select id="credit-installments" onchange="calculateInstallmentAmount()">
+                        <option value="1">1 cuotas</option>
                         <option value="2">2 cuotas</option>
                         <option value="3">3 cuotas</option>
                         <option value="4" selected>4 cuotas</option>
                         <option value="6">6 cuotas</option>
                         <option value="8">8 cuotas</option>
+                        <option value="10">10 cuotas</option>
                         <option value="12">12 cuotas</option>
                     </select>
                 </div>
