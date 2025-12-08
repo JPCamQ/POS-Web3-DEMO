@@ -878,96 +878,77 @@
         </div>
 
    
-    <!-- Modales -->
-    <div id="paymentSelectionModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 350px;">
-            <div class="modal-header">
-                <div class="modal-title">Seleccionar Pago</div>
-                <button class="close-btn" data-close="paymentSelectionModal">×</button>
-            </div>
-            <div class="modal-body">
-                <p style="font-size: 1.1rem; color: var(--white); margin-bottom: 20px;">
-                    Monto: <span id="finalPaymentAmountVES" style="font-weight: 900;">0.00 VES</span>
-                </p>
-                <button class="pay-option-btn crypto-option" data-payment="crypto">💰 Criptomonedas</button>
-                <button class="pay-option-btn pagomovil-qr-option" data-payment="pm-qr">📱 Pago Móvil QR</button>
-                <button class="pay-option-btn pagomovil-option" data-payment="pm-whatsapp">📲 Pago Móvil WhatsApp</button>
-        <button class="pay-option-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" data-payment="credits">
-            📊 Pago por Cuotas
-        </button>
-            </div>
+    <!-- Modal -->
+    
+   <div id="unifiedPaymentModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 360px; border-top: 5px solid var(--pago-movil);">
+        <div class="modal-header">
+            <div class="modal-title">📱 Pago Móvil</div>
+            <button class="close-btn" onclick="UI.closeModal('unifiedPaymentModal')">×</button>
         </div>
-    </div>
+        
+        <div class="modal-body" style="padding: 15px 20px;">
+            
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div style="background: rgba(255,255,255,0.1); display: inline-block; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;">
+                    <span style="color: var(--gray-text); font-size: 0.8rem;">ID Compra:</span>
+                    <strong id="unifiedTxId" style="color: var(--info); font-size: 1.1rem; letter-spacing: 1px;">------</strong>
+                </div>
 
-    <div id="cryptoPaymentModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Pagar con Cripto</div>
-                <button class="close-btn" data-close="cryptoPaymentModal">×</button>
-            </div>
-            <div class="modal-body">
-                <div id="statusBanner" class="status-banner"></div>
-                <p class="crypto-label">Monto: (<span id="paymentModalToken">USDT</span>)</p>
-                <p id="cryptoAmount" class="crypto-value">0.00 USD</p>
-                <p class="crypto-label">Red: <span id="networkLabel">BNB Smart Chain</span></p>
-                <div id="qrcode" class="qr-container"></div>
-                <p class="crypto-label">Escanea con tu wallet <span id="scanNetworkName">BEP-20</span></p>
-                <div class="address-section">
-                    <span class="address-label">Dirección:</span>
-                    <span id="walletAddressDisplay" class="address-value">0x...</span>
-                    <button class="btn-copy" data-copy="address">📋 Copiar</button>
+                <p style="font-size: 0.9rem; color: var(--gray-text); margin-bottom: 5px;">Total a Pagar</p>
+                <div id="unifiedAmountVES" style="font-size: 2.2rem; font-weight: 900; color: var(--white); line-height: 1;">0,00 Bs</div>
+                <div style="margin-top: 5px; font-size: 1rem; color: var(--ws-green); font-weight: 600;">
+                    <span id="unifiedAmountUSD">$0.00</span> 
+                    <span style="color: var(--gray-text); font-weight: 400; font-size: 0.8rem; margin-left: 5px;">(Tasa: <span id="unifiedRate">00.00</span>)</span>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="pagoMovilModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 350px;">
-            <div class="modal-header">
-                <div class="modal-title">Pago Móvil</div>
-                <button class="close-btn" data-close="pagoMovilModal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="pago-movil-data">
-                    <h3>Total (VES)</h3>
-                    <p id="pmAmountDisplay">0,00 VES</p>
-                    <small>ID: <strong><span id="pmUniqueIdDisplay">######</span></strong></small>
+            <div id="unifiedQrContainer" class="qr-container" style="margin: 10px auto; padding: 10px; border: 2px solid var(--pago-movil); width: 180px; height: 180px; position: relative;">
                 </div>
-                
-                <div id="pmRequestQrContainer" class="qr-container" style="padding: 10px; margin: 15px auto; width: 150px; height: 150px;"></div>
-                <p style="font-size: 0.7rem; color: var(--gray-text); margin-top: -10px; margin-bottom: 10px;">QR del Pedido (Para Cliente)</p>
+            <p style="text-align: center; color: var(--pago-movil); font-size: 0.8rem; margin-top: -10px; margin-bottom: 15px;">Escanea para pagar</p>
 
-                <p style="font-size: 0.75rem; color: var(--pago-movil); font-weight: 600; margin-top: 5px;">Datos del Receptor:</p>
-                <div class="address-section" style="margin-top: 10px;">
-                    <span class="address-label">CI/RIF: <strong id="pmCifDisplay">V-00000000</strong></span>
-                    <span class="address-label">Teléfono: <strong id="pmPhoneDisplay">0412-0000000</strong></span>
-                    <span class="address-label">Banco: <strong id="pmBankDisplay">Banesco</strong></span>
-                    <button class="btn-copy" style="background: var(--pago-movil);" data-copy="pm-verbose">📋 Copiar Datos</button>
-                </div>
-                
-                <button class="btn-copy" style="margin-top: 10px;" data-copy="pm-clean">📄 Copiar (Limpio)</button>
-                
-                <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <!-- Botón de Descarga Directa (Horizontal) -->
-                    <button class="pay-option-btn" style="background: #E91E63; color: var(--white); margin:0; font-size: 0.9rem; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;" data-action="download-qr-image">
-                        <span>⬇️</span>
-                        <span>Descargar</span>
-                    </button>
-                    <!-- Botón Enviar WhatsApp (Horizontal) -->
-                    <button class="pay-option-btn" style="background: var(--ws-green); color: #0a0e17; margin:0; font-size: 0.9rem; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;" data-action="send-whatsapp">
-                        <span>📤</span>
-                        <span>WhatsApp</span>
-                    </button>
-                </div>
-                <!-- Botón Compartir (Secundario/Pequeño) -->
-                <button class="btn-copy" style="margin-top: 10px; background: transparent; border: 1px solid var(--gray-text); color: var(--gray-text);" data-action="share-qr-image">
-                    📷 Compartir (Nativo)
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-copy" style="background: var(--ws-green); color: #0a0e17; display: flex; align-items: center; justify-content: center; gap: 8px;" data-action="send-whatsapp-unified">
+                    <span>📤</span> WhatsApp
                 </button>
-
-                <button class="btn-copy" style="margin-top: 15px;" data-action="open-conciliation" data-source="pagoMovilModal">✅ Conciliar</button>
+                <button class="btn-copy" style="background: #2a2d3a; border: 1px solid var(--gray-text);" onclick="togglePaymentDetails()">
+                    📄 Ver Datos
+                </button>
             </div>
+
+            <div id="paymentDetailsBox" style="display: none; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="color: var(--gray-text);">Banco:</span>
+                    <strong id="uniBank" style="color: var(--white);">Banesco</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="color: var(--gray-text);">C.I/RIF:</span>
+                    <strong id="uniCif" style="color: var(--white);">V-000000</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: var(--gray-text);">Teléfono:</span>
+                    <strong id="uniPhone" style="color: var(--white);">0412-0000000</strong>
+                </div>
+                <button class="btn-copy" style="font-size: 0.8rem; padding: 8px;" data-copy="pm-clean">📋 Copiar Todo</button>
+            </div>
+
+            <button class="pay-option-btn" style="background: var(--pago-movil); color: white; margin-bottom: 15px;" data-action="open-conciliation" data-source="unifiedPaymentModal">
+                ✅ YA PAGARON (CONCILIAR)
+            </button>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; display: flex; gap: 10px;">
+                <button class="btn-copy" style="flex: 1; background: transparent; border: 1px solid var(--info); color: var(--info);" data-payment="crypto">
+                    💰 Cripto
+                </button>
+                <button class="btn-copy" style="flex: 1; background: transparent; border: 1px solid #764ba2; color: #a580d4;" data-payment="credits">
+                    📊 Crédito
+                </button>
+            </div>
+
         </div>
     </div>
+</div>
+    
 
     <div id="pmStaticQrModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 350px;">
@@ -996,6 +977,30 @@
                     </div>
                 </div>
                 <button class="btn-copy" style="margin-top: 20px;" data-action="open-conciliation" data-source="pmStaticQrModal">✅ Conciliar</button>
+            </div>
+        </div>
+    </div>
+
+<div id="cryptoPaymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Pagar con Cripto</div>
+                <button class="close-btn" data-close="cryptoPaymentModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="statusBanner" class="status-banner"></div>
+                <p class="crypto-label">Monto: (<span id="paymentModalToken">USDT</span>)</p>
+                <p id="cryptoAmount" class="crypto-value">0.00 USD</p>
+                <p class="crypto-label">Red: <span id="networkLabel">BNB Smart Chain</span></p>
+                
+                <div id="qrcode" class="qr-container"></div>
+                
+                <p class="crypto-label">Escanea con tu wallet <span id="scanNetworkName">BEP-20</span></p>
+                <div class="address-section">
+                    <span class="address-label">Dirección:</span>
+                    <span id="walletAddressDisplay" class="address-value">0x...</span>
+                    <button class="btn-copy" data-copy="address">📋 Copiar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1068,9 +1073,7 @@
                         </button>
                     </div>
 
-                    <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
-
-                    <div class="button-group">
+            <div class="button-group">
                         <button class="btn-copy" style="background: var(--ws-green);" onclick="RateUpdater.forceUpdate()">
                             🔄 Actualizar Tasa Ahora
                         </button>
@@ -1132,10 +1135,6 @@
                         <div>
                             <label>Descuento (%):</label>
                             <input type="number" id="newDiscount" min="0" max="99"> <span class="percent-symbol">%</span>
-                        </div>
-                        <div>
-                            <label>Propina (%):</label>
-                            <input type="number" id="newTip" min="0" max="99"> <span class="percent-symbol">%</span>
                         </div>
                         <div>
                             <label>Mora Anual (%):</label>
@@ -2108,145 +2107,189 @@ const Config = {
         }
     };
 
-    const Payments = {
-        handleSelection() {
-            const authModal = document.getElementById('authModal');
-            if (authModal && authModal.classList.contains('active') && POSState.sessionStart) {
-                authModal.classList.remove('active');
+// ==========================================
+// 2. MÓDULO DE PAGOS (CORREGIDO - V3 FINAL)
+// ==========================================
+const Payments = {
+    // Esta función se llama al presionar el botón grande "PAGAR"
+    handleSelection() {
+        const authModal = document.getElementById('authModal');
+        if (authModal && authModal.classList.contains('active')) return;
+
+        const displayAmt = parseFloat(POSState.currentValue);
+        if (displayAmt <= 0 || isNaN(displayAmt)) {
+            UI.showToast('⚠️ Ingresa un monto');
+            return;
+        }
+
+        Utils.vibrate(10);
+        
+        // 1. Generar ID único
+        POSState.currentTransactionId = Utils.generateUniqueId();
+
+        // 2. Calcular montos
+        const amountUSD = POSState.baseCurrency === 'VES' 
+            ? Calculations.toUSD(displayAmt) 
+            : displayAmt;
+        const amountVES = Calculations.toVES(amountUSD);
+
+        POSState.pmAmountToConfirm = amountVES;
+        POSState.pmAmountUSD = amountUSD;
+
+        // 3. Guardar transacción pendiente
+        Storage.savePendingTransaction({
+            transactionId: POSState.currentTransactionId,
+            amountVES: POSState.pmAmountToConfirm,
+            amountUSD: POSState.pmAmountUSD,
+            timestamp: Date.now()
+        });
+
+        // 4. LIMPIAR PANTALLA PRINCIPAL (Calculadora a 0)
+        POSState.clear(); 
+        
+        // 5. Abrir Modal Unificado
+        this.openUnifiedModal();
+    },
+
+    openUnifiedModal() {
+        // Llenar ID y Montos
+        document.getElementById('unifiedTxId').textContent = POSState.currentTransactionId;
+        document.getElementById('unifiedAmountVES').textContent = `${Utils.formatCurrency(POSState.pmAmountToConfirm, 'VES')} Bs`;
+        document.getElementById('unifiedAmountUSD').textContent = `$${Utils.formatCurrency(POSState.pmAmountUSD, 'USD')}`;
+        document.getElementById('unifiedRate').textContent = Utils.formatNumber(Config.vesRate);
+
+        // Datos Bancarios
+        document.getElementById('uniBank').textContent = Config.bankCodes[Config.pmBankCode] || Config.pmBankCode;
+        document.getElementById('uniCif').textContent = Config.pmCif;
+        document.getElementById('uniPhone').textContent = Config.pmPhone;
+
+        // Abrir modal PRIMERO para que el QR se pueda renderizar
+        UI.openModal('unifiedPaymentModal');
+
+        // Generar QR Estático después de abrir
+        setTimeout(() => {
+            const qrContainer = document.getElementById('unifiedQrContainer');
+            qrContainer.innerHTML = ''; 
+            if (Config.pmStaticQrPayload) {
+                QRGenerator.renderQR(qrContainer, Config.pmStaticQrPayload, 160, 160);
+            } else {
+                qrContainer.innerHTML = '<p style="font-size:0.7rem; color:var(--danger); display:flex; align-items:center; justify-content:center; height:100%;">⚠️ QR no configurado en Ajustes</p>';
             }
-            if (document.getElementById('authModal').classList.contains('active')) return;
+        }, 50);
+    },
 
-            const displayAmt = parseFloat(POSState.currentValue);
-            if (displayAmt <= 0 || isNaN(displayAmt)) {
-                UI.showToast('⚠️ Ingresa un monto');
-                return;
+    sendUnifiedWhatsApp() {
+        const amountVES = POSState.pmAmountToConfirm;
+        const amountUSD = POSState.pmAmountUSD;
+        
+        const msg = `
+👋 Hola! Para completar tu pago en *${Config.businessName}*:
+
+🆔 ID DE COMPRA: *${POSState.currentTransactionId}*
+💵 Monto: *${Utils.formatCurrency(amountVES, 'VES')} Bs*
+(Ref: $${Utils.formatCurrency(amountUSD, 'USD')})
+
+📱 *Datos Pago Móvil:*
+Banco: ${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})
+C.I: ${Config.pmCif}
+Telf: ${Config.pmPhone}
+
+⚠️ *PARA CONFIRMAR TU PAGO:*
+Por favor responde con este formato:
+*${POSState.currentTransactionId} [Últimos 6 dígitos referencia]*
+
+Ejemplo: ${POSState.currentTransactionId} 123456
+`.trim();
+
+        WhatsAppManager.openWhatsApp(msg, null);
+    },
+
+    openCrypto() {
+        // 1. Cerrar el modal unificado
+        UI.closeModal('unifiedPaymentModal');
+
+        // 2. Verificar que la ventana Cripto exista
+        const cryptoModal = document.getElementById('cryptoPaymentModal');
+        if (!cryptoModal) {
+            alert("❌ ERROR CRÍTICO: Falta el código HTML de 'cryptoPaymentModal'. Revisa el Paso 1.");
+            return;
+        }
+
+        // 3. Asegurar moneda por defecto
+        if (!POSState.currentCrypto) {
+            POSState.currentCrypto = 'USDT';
+            const displayEl = document.getElementById('tokenSymbolDisplay');
+            if(displayEl) displayEl.textContent = 'USDT';
+        }
+
+        // 4. Abrir
+        setTimeout(() => {
+            try {
+                // Abrir modal
+                UI.openModal('cryptoPaymentModal');
+
+                const amountUSD = POSState.pmAmountUSD || Calculations.toUSD(parseFloat(POSState.currentValue || 0));
+                const tokenConfig = Config.supportedTokens[POSState.currentCrypto];
+                
+                // Generar QR
+                setTimeout(() => {
+                    QRGenerator.generateCryptoQR(amountUSD, tokenConfig);
+                    this.startMonitoring(amountUSD, tokenConfig);
+                }, 100);
+                
+            } catch (e) {
+                console.error(e);
+                UI.showToast('❌ Error: ' + e.message);
             }
+        }, 200);
+    },
 
-            Utils.vibrate(10);
-            POSState.currentTransactionId = Utils.generateUniqueId();
+    openCredits() {
+        UI.closeModal('unifiedPaymentModal');
+        showPaymentModalWithCredit();
+    },
 
-            const amountUSD = POSState.baseCurrency === 'VES' 
-                ? Calculations.toUSD(displayAmt) 
-                : displayAmt;
-            const amountVES = Calculations.toVES(amountUSD);
-
-            POSState.pmAmountToConfirm = amountVES;
-            POSState.pmAmountUSD = amountUSD;
-
-            document.getElementById('finalPaymentAmountVES').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
-
-            Storage.savePendingTransaction({
-                transactionId: POSState.currentTransactionId,
-                amountVES: POSState.pmAmountToConfirm,
-                amountUSD: POSState.pmAmountUSD,
-                timestamp: Date.now()
-            });
-
-            NotificationManager.notifyPendingPayment(POSState.currentTransactionId, amountVES);
-
-            document.getElementById('pmUniqueIdDisplay').textContent = POSState.currentTransactionId;
-            document.getElementById('pmStaticUniqueIdDisplay').textContent = POSState.currentTransactionId;
-
-            UI.openModal('paymentSelectionModal');
-        },
-
-        openCrypto() {
-            const displayAmt = parseFloat(POSState.currentValue);
-            const amountUSD = POSState.baseCurrency === 'VES' 
-                ? Calculations.toUSD(displayAmt) 
-                : displayAmt;
-
-            UI.closeModal('paymentSelectionModal');
-            Storage.removePendingTransaction(POSState.currentTransactionId);
-
-            const tokenConfig = Config.supportedTokens[POSState.currentCrypto];
-            QRGenerator.generateCryptoQR(amountUSD, tokenConfig);
-            this.startMonitoring(amountUSD, tokenConfig);
-
-            POSState.clear();
-            UI.openModal('cryptoPaymentModal');
-        },
-
-        openPagoMovil() {
-            UI.closeModal('paymentSelectionModal');
-
-            const amountVES = POSState.pmAmountToConfirm;
-            document.getElementById('pmAmountDisplay').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
-            document.getElementById('pmCifDisplay').textContent = Config.pmCif;
-            document.getElementById('pmPhoneDisplay').textContent = Config.pmPhone;
-            document.getElementById('pmBankDisplay').textContent = `${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})`;
-
-            // CORRECCIÓN CRÍTICA: Abrir modal PRIMERO para asegurar dimensiones
-            POSState.clear();
-            UI.openModal('pagoMovilModal');
-
-            // Generar QR con ligero retardo para asegurar renderizado en contenedor visible
-            setTimeout(() => {
-                QRGenerator.generateRequestQR(POSState.currentTransactionId, amountVES);
-            }, 100);
-        },
-
-        openPMStaticQR() {
-            UI.closeModal('paymentSelectionModal');
-
-            const amountVES = POSState.pmAmountToConfirm;
-            document.getElementById('pmStaticAmountDisplay').textContent = `${Utils.formatCurrency(amountVES, 'VES')} VES`;
-            document.getElementById('pmStaticCifDisplay').textContent = Config.pmCif;
-            document.getElementById('pmStaticPhoneDisplay').textContent = Config.pmPhone;
-            document.getElementById('pmStaticBankDisplay').textContent = `${Config.bankCodes[Config.pmBankCode]} (${Config.pmBankCode})`;
-            document.getElementById('pmStaticRateDisplay').textContent = `1 USD = ${Utils.formatNumber(Config.vesRate)} VES`;
-
-            QRGenerator.generatePMQR();
-            POSState.clear();
-            UI.openModal('pmStaticQrModal');
-        },
-
-        sendPMWhatsApp() {
-            WhatsAppManager.sendPaymentRequest(
-                POSState.currentTransactionId,
-                POSState.pmAmountToConfirm,
-                POSState.pmAmountUSD
-            );
-        },
-
-        startMonitoring(amountUSD, tokenConfig) {
-            const banner = document.getElementById('statusBanner');
+    // Funciones de monitoreo (Recuperadas)
+    startMonitoring(amountUSD, tokenConfig) {
+        const banner = document.getElementById('statusBanner');
+        if (banner) {
             banner.className = 'status-banner waiting';
             banner.innerHTML = '⏳ Esperando confirmación...';
+        }
 
-            if (Config.isDemoMode) {
-                POSState.monitoringTimeout = setTimeout(() => {
-                    this.confirmPayment(amountUSD, tokenConfig, 'DEMO_TX_' + Date.now());
-                }, 8000);
-            }
-        },
+        if (Config.isDemoMode) {
+            POSState.monitoringTimeout = setTimeout(() => {
+                this.confirmPayment(amountUSD, tokenConfig, 'DEMO_TX_' + Date.now());
+            }, 8000);
+        }
+    },
 
-        confirmPayment(amountUSD, tokenConfig, txHash) {
-            const banner = document.getElementById('statusBanner');
+    confirmPayment(amountUSD, tokenConfig, txHash) {
+        const banner = document.getElementById('statusBanner');
+        if (banner) {
             banner.className = 'status-banner confirmed';
             banner.innerHTML = '✅ ¡Pago confirmado!';
-
-            const amountVES = Calculations.toVES(amountUSD);
-
-            Storage.saveTransaction({
-                amount: amountUSD,
-                txHash: txHash,
-                timestamp: Date.now(),
-                status: 'confirmed',
-                token: tokenConfig.symbol,
-                baseCurrency: 'USD',
-                transactionId: POSState.currentTransactionId,
-                finalAmountVES: amountVES
-            });
-
-            NotificationManager.notifyPaymentConfirmed(POSState.currentTransactionId, amountVES, amountUSD);
-
-            UI.showToast(`🎉 Pago de $${Utils.formatCurrency(amountUSD)} confirmado!`);
-
-            setTimeout(() => UI.closeModal('cryptoPaymentModal'), 3000);
         }
-    };
-    
+
+        const amountVES = Calculations.toVES(amountUSD);
+
+        Storage.saveTransaction({
+            amount: amountUSD,
+            txHash: txHash,
+            timestamp: Date.now(),
+            status: 'confirmed',
+            token: tokenConfig.symbol,
+            baseCurrency: 'USD',
+            transactionId: POSState.currentTransactionId,
+            finalAmountVES: amountVES
+        });
+
+        NotificationManager.notifyPaymentConfirmed(POSState.currentTransactionId, amountVES, amountUSD);
+        UI.showToast(`🎉 Pago de $${Utils.formatCurrency(amountUSD)} confirmado!`);
+
+        setTimeout(() => UI.closeModal('cryptoPaymentModal'), 3000);
+    }
+};
     const WhatsAppManager = {
         openWhatsApp(message, phone = null) {
             const encoded = encodeURIComponent(message);
@@ -2487,7 +2530,6 @@ POS Web3
             document.getElementById('newWhatsappPhone').value = Config.whatsappPhone;
             document.getElementById('newPmStaticQrPayload').value = Config.pmStaticQrPayload;
             document.getElementById('newDiscount').value = Config.discountPercentage;
-            document.getElementById('newTip').value = Config.tipPercentage;
             document.getElementById('moraPercent').value = Config.moraPercent;
             
             // Toggles
@@ -2531,11 +2573,9 @@ POS Web3
             Config.pmStaticQrPayload = document.getElementById('newPmStaticQrPayload').value.trim();
 
             const newDiscount = parseInt(document.getElementById('newDiscount').value);
-            const newTip = parseInt(document.getElementById('newTip').value);
             const newMora = parseInt(document.getElementById('moraPercent').value);
 
             if (!isNaN(newDiscount)) Config.discountPercentage = newDiscount;
-            if (!isNaN(newTip)) Config.tipPercentage = newTip;
             if (!isNaN(newMora)) Config.moraPercent = newMora;
 
             // Toggles
@@ -2756,16 +2796,16 @@ const HistoryManager = {
 
                 html += `
                     <div class="tx-item" style="border-left-color: ${borderColor};">
-                        <div class="tx-content-wrapper">
-                            <div class="tx-header">
-                                <span class="tx-amount">$${Utils.formatCurrency(tx.amount, 'USD')} ${token}</span>
-                                <span class="tx-time">${date}</span>
-                            </div>
-                            <div class="tx-hash">${tx.txHash || 'N/A'} ${moraLabel}</div>
-                        </div>
-                        <button class="delete-btn" data-action="delete-tx" data-id="${tx.transactionId}">🗑️</button>
-                    </div>
-                `;
+        <div class="tx-content-wrapper">
+            <div class="tx-header">
+                <span class="tx-amount">$${Utils.formatCurrency(tx.amount, 'USD')} USD</span>
+                <span class="tx-time">${date}</span>
+            </div>
+            <div class="tx-hash">${tx.txHash || 'N/A'} ${moraLabel}</div>
+        </div>
+        <button class="delete-btn" data-action="delete-tx" data-id="${tx.transactionId}">🗑️</button>
+    </div>
+`;
             });
             container.innerHTML = html;
         },
@@ -3314,11 +3354,15 @@ const HistoryManager = {
                 case 'select-payment': Payments.handleSelection(); break;
                 case 'history': HistoryManager.open(); break;
                 case 'change-crypto': this.changeCrypto(); break;
+                case 'send-whatsapp-unified': Payments.sendUnifiedWhatsApp();  break;
+                
             }
         },
 
         handleGlobalAction(action, element) {
     switch (action) {
+        case 'authenticate': Auth.authenticate(); break;
+        case 'send-whatsapp-unified': Payments.sendUnifiedWhatsApp();  break;
         case 'authenticate': Auth.authenticate(); break;
         case 'open-config': Settings.open(); break;
         case 'save-config': Settings.save(); break;
@@ -3358,20 +3402,16 @@ const HistoryManager = {
                 case 'pm-clean':
                     Utils.copyToClipboard(WhatsAppManager.getQuickPasteData(POSState.pmAmountToConfirm), 'Datos limpios');
                     break;
+                    
             }
         },
 
         handlePayment(type) {
-            switch (type) {
-                case 'crypto': Payments.openCrypto(); break;
-                case 'pm-qr': Payments.openPMStaticQR(); break;
-                case 'pm-whatsapp': Payments.openPagoMovil(); break;
-                // AGREGADO: Caso para créditos
-                case 'credits': 
-                    UI.closeModal('paymentSelectionModal');
-                    showPaymentModalWithCredit(); 
-                    break;
-            }
+        switch (type) {
+            case 'crypto': Payments.openCrypto(); break; // Llama a la nueva función
+            case 'credits': Payments.openCredits(); break; // Llama a créditos
+            // Los casos viejos (pm-qr, pm-whatsapp) ya no se usan desde el botón principal
+        }
         },
 
         applyModifier(type) {
@@ -3391,12 +3431,9 @@ const HistoryManager = {
                 POSState.currentValue = (Math.round(newAmt * 100) / 100).toFixed(2);
                 POSState.isDiscountApplied = true;
                 discountDisplay.textContent = `-${Config.discountPercentage}% Descuento`;
-            } else if (type === 'tip') {
-                const newAmt = Calculations.applyTip(val, Config.tipPercentage);
-                POSState.currentValue = (Math.round(newAmt * 100) / 100).toFixed(2);
-                POSState.isTipApplied = true;
-                discountDisplay.textContent = `+${Config.tipPercentage}% Propina`;
-            }
+            } 
+            // 🔴 AQUÍ BORRAMOS TODO EL BLOQUE "else if (type === 'tip')"
+            
             discountDisplay.style.display = 'block';
         },
 
@@ -4079,6 +4116,14 @@ Envíame:
     UI.showToast('📤 Datos de pago enviados');
 }
 
+function togglePaymentDetails() {
+    const box = document.getElementById('paymentDetailsBox');
+    if (box.style.display === 'none') {
+        box.style.display = 'block';
+    } else {
+        box.style.display = 'none';
+    }
+}
 // ==========================================
 // PANEL DE CARTERA - COMPLETO
 // ==========================================
