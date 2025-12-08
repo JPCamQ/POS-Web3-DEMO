@@ -826,6 +826,141 @@
         opacity: 0 !important;
         pointer-events: none !important;
     }
+
+    /* =======================================================
+       ACTIVACIÓN DE MODO CLARO AUTOMÁTICO (TECLADO FINAL)
+       ======================================================= */
+    @media (prefers-color-scheme: light) {
+        :root {
+            /* --- COLORES BASE (Fondo y Texto) --- */
+            --bg-body: #f0f2f5;       /* Gris muy claro fondo pantalla */
+            --bg-card-actual: #ffffff;/* Blanco puro tarjeta */
+            --text-main: #1c1e21;     /* Negro suave */
+            --gray-text: #65676b;     /* Gris medio */
+            --border-color: #dddfe2;  /* Bordes sutiles */
+            --input-bg: #f0f2f5;      /* Inputs gris claro */
+            --copy-btn: #e4e6eb;      /* Botones secundarios */
+            
+            /* --- AJUSTE DE COLORES DE MARCA --- */
+            --ws-green: #00a884;      
+            --info: #0d6efd;          
+            --warning: #ffc107;       
+            --danger: #dc3545;
+            --pago-movil: #008f85;
+        }
+
+        /* 1. ESTRUCTURA PRINCIPAL */
+        body { background: var(--bg-body) !important; }
+        .pos-container, .modal-content { 
+            background: var(--bg-card-actual) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        }
+        .display-area { 
+            background: #ffffff !important; 
+            border-bottom: 1px solid var(--border-color) !important; 
+        }
+        .amount-display { color: var(--text-main) !important; }
+        .currency-label, #sessionIndicator { 
+            background: var(--input-bg) !important; color: var(--text-main) !important; 
+        }
+
+        /* 2. TECLADO PRINCIPAL (DISEÑO MEJORADO) */
+        
+        /* A. Teclas Numéricas (Gris muy suave para diferenciar) */
+        .key.num-key, .key:not(.delete-key):not(.clear-key):not(.discount-key):not(.tip-key):not(.pay-key):not(.token-key):not(#btnCredito) { 
+            background: #f7f8fa !important;   
+            color: #050505 !important; 
+            border: 1px solid #e4e6eb !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        }
+        .key.num-key:active { background: #e4e6eb !important; }
+
+        /* B. Botones con Color (Mantener identidad visual) */
+        /* Borrar (Rojo) */
+        .delete-key { 
+            background: #dc3545 !important; 
+            color: #ffffff !important; 
+            border: none !important;
+        }
+        
+        /* Limpiar (Amarillo) */
+        .clear-key { 
+            background: #ffc107 !important; 
+            color: #000000 !important; 
+            border: none !important;
+        }
+        
+        /* Descuento (Rosado/Rojo suave) */
+        .discount-key { 
+            background: #e91e63 !important; 
+            color: #ffffff !important; 
+            border: none !important;
+        }
+        
+        /* Historial (Naranja) */
+        .tip-key { 
+            background: #ff9800 !important; 
+            color: #000000 !important; 
+            border: none !important;
+        }
+        
+        /* Cambiar Moneda (Azul) */
+        .token-key {
+            background: #0d6efd !important;
+            color: #ffffff !important;
+            border: none !important;
+        }
+
+        /* PAGAR (Verde degradado original o sólido) */
+        .pay-key {
+            background: linear-gradient(90deg, #00a884, #008f85) !important;
+            color: #ffffff !important;
+            border: none !important;
+        }
+
+        /* CRÉDITO (Azul sólido) */
+        #btnCredito {
+       background: linear-gradient(90deg, #00a884, #008f85) !important;
+            color: #ffffff !important;
+            border: none !important;
+    }
+
+        /* 3. MODALES Y UI */
+        .modal-header { border-bottom: 1px solid var(--border-color) !important; }
+        .close-btn { background: var(--input-bg) !important; color: var(--text-main) !important; }
+
+        /* Inputs y Textos */
+        input, select, textarea, .pin-input {
+            background: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            border: 1px solid #ced4da !important;
+        }
+        .pin-input { 
+            background: transparent !important; 
+            border: none !important;
+            border-bottom: 3px solid var(--text-main) !important; 
+        }
+
+        /* Listas */
+        .tx-item, .config-group, .address-section, .pm-detail-box, .pago-movil-data, .pending-tx-item {
+            background: #ffffff !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        .tx-time, .tx-hash, .config-group label, .address-label, .pm-detail-label {
+            color: var(--gray-text) !important;
+        }
+        
+        /* Botones Secundarios */
+        .btn-copy, #configButton, .delete-btn {
+            background: var(--copy-btn) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        #configButton, .delete-btn { background: transparent !important; border: none !important; }
+        .modal-title, h3, h4 { color: var(--text-main) !important; }
+    }
+
     </style>
     <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -873,7 +1008,7 @@
             </button>
 
             <button class="key pay-key" data-action="select-payment">PAGAR</button>
-            <button id="btnCredito" class="key" data-action="credito" style="background: var(--info); font-size: 1rem; grid-column: span 2;">CREDITO</button>
+            <button class="key pay-key" data-action="credito">CREDITO</button>
            
         </div>
 
@@ -2152,30 +2287,38 @@ const Payments = {
     },
 
     openUnifiedModal() {
-        // Llenar ID y Montos
+        // 1. Llenar los textos (Esto es liviano y rápido)
         document.getElementById('unifiedTxId').textContent = POSState.currentTransactionId;
         document.getElementById('unifiedAmountVES').textContent = `${Utils.formatCurrency(POSState.pmAmountToConfirm, 'VES')} Bs`;
         document.getElementById('unifiedAmountUSD').textContent = `$${Utils.formatCurrency(POSState.pmAmountUSD, 'USD')}`;
         document.getElementById('unifiedRate').textContent = Utils.formatNumber(Config.vesRate);
 
-        // Datos Bancarios
         document.getElementById('uniBank').textContent = Config.bankCodes[Config.pmBankCode] || Config.pmBankCode;
         document.getElementById('uniCif').textContent = Config.pmCif;
         document.getElementById('uniPhone').textContent = Config.pmPhone;
 
-        // Abrir modal PRIMERO para que el QR se pueda renderizar
+        // 2. Limpiar el contenedor QR INMEDIATAMENTE para que no se vea el anterior
+        const qrContainer = document.getElementById('unifiedQrContainer');
+        qrContainer.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%; color:var(--info);">⌛</div>';
+
+        // 3. ABRIR EL MODAL PRIMERO (Prioridad Visual)
+        // Esto hace que la ventana aparezca suavemente sin trabarse
         UI.openModal('unifiedPaymentModal');
 
-        // Generar QR Estático después de abrir
-        setTimeout(() => {
-            const qrContainer = document.getElementById('unifiedQrContainer');
-            qrContainer.innerHTML = ''; 
-            if (Config.pmStaticQrPayload) {
-                QRGenerator.renderQR(qrContainer, Config.pmStaticQrPayload, 160, 160);
-            } else {
-                qrContainer.innerHTML = '<p style="font-size:0.7rem; color:var(--danger); display:flex; align-items:center; justify-content:center; height:100%;">⚠️ QR no configurado en Ajustes</p>';
-            }
-        }, 50);
+        // 4. GENERAR EL QR CON RETRASO (Desacoplamiento)
+        // Esperamos 300ms a que termine la animación de apertura para generar el QR
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                qrContainer.innerHTML = ''; // Quitar reloj de arena
+                
+                if (Config.pmStaticQrPayload) {
+                    // Esta es la parte pesada, la hacemos cuando ya el modal está abierto
+                    QRGenerator.renderQR(qrContainer, Config.pmStaticQrPayload, 160, 160);
+                } else {
+                    qrContainer.innerHTML = '<p style="font-size:0.7rem; color:var(--danger); display:flex; align-items:center; justify-content:center; height:100%;">⚠️ QR no configurado</p>';
+                }
+            }, 300); // 300ms es imperceptible para el ojo pero vital para el procesador
+        });
     },
 
     sendUnifiedWhatsApp() {
